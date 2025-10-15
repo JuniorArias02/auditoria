@@ -1,11 +1,7 @@
 <?php
 require_once __DIR__ . '/../../middlewares/cors.php';
-require_once __DIR__ . '/../../middlewares/auth.php';
-require_once __DIR__ . '/../../middlewares/permiso.php';
 require_once __DIR__ . '/../../db/conexion.php';
 require_once __DIR__ . '/../../models/Usuario.php';
-
-requirePermission('usuarios:crear');
 
 $data = json_decode(file_get_contents('php://input'), true);
 

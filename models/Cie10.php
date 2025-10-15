@@ -1,15 +1,18 @@
 <?php
 require_once __DIR__ . '/../db/conexion.php';
 
-class Cie10 {
+class Cie10
+{
     private $pdo;
 
-    public function __construct($pdo) {
+    public function __construct($pdo)
+    {
         $this->pdo = $pdo;
     }
 
     // Crear nuevo registro
-    public function crear($codigo, $descripcion) {
+    public function crear($codigo, $descripcion)
+    {
         $sql = "INSERT INTO cie10 (codigo, descripcion) VALUES (:codigo, :descripcion)";
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindParam(':codigo', $codigo);
@@ -21,14 +24,16 @@ class Cie10 {
     }
 
     // Obtener todos los registros
-    public function obtenerTodos() {
+    public function obtenerTodos()
+    {
         $sql = "SELECT * FROM cie10 ORDER BY codigo ASC";
         $stmt = $this->pdo->query($sql);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     // Obtener uno por ID
-    public function obtenerPorId($id) {
+    public function obtenerPorId($id)
+    {
         $sql = "SELECT * FROM cie10 WHERE id = :id";
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
@@ -36,17 +41,27 @@ class Cie10 {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+
     // Buscar por código
-    public function buscarPorCodigo($codigo) {
-        $sql = "SELECT * FROM cie10 WHERE codigo = :codigo";
+    public function buscarPorCodigo($termino)
+    {
+        $sql = "SELECT * FROM cie10 
+            WHERE codigo LIKE :termino 
+               OR descripcion LIKE :termino
+            LIMIT 10";
         $stmt = $this->pdo->prepare($sql);
-        $stmt->bindParam(':codigo', $codigo);
+        $like = "%$termino%";
+        $stmt->bindParam(':termino', $like, PDO::PARAM_STR);
         $stmt->execute();
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+
+
+
     // Actualizar
-    public function actualizar($id, $codigo, $descripcion) {
+    public function actualizar($id, $codigo, $descripcion)
+    {
         $sql = "UPDATE cie10 SET codigo = :codigo, descripcion = :descripcion WHERE id = :id";
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindParam(':codigo', $codigo);
@@ -56,7 +71,8 @@ class Cie10 {
     }
 
     // Eliminar
-    public function eliminar($id) {
+    public function eliminar($id)
+    {
         $sql = "DELETE FROM cie10 WHERE id = :id";
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);

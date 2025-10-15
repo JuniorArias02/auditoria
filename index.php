@@ -1,5 +1,5 @@
 <?php
-header("Content-Type: application/json; charset=UTF-8");
+require_once __DIR__ . '/middlewares/cors.php';
 
 $uri = trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
 $method = $_SERVER['REQUEST_METHOD'];
@@ -17,8 +17,9 @@ $routes = [
         'api/criterios' => 'controllers/criterios/crear.php',
         'api/cie10' => 'controllers/cie10/crear.php',
         'api/auditoria' => 'controllers/auditoria/crear.php',
-        'api/respuesta' => 'controllers/auditoria/crear.php',
-        
+        'api/respuesta' => 'controllers/respuesta/crear.php',
+        'api/pacientes' => 'controllers/pacientes/crear.php',
+        'api/auditoriaCies' => 'controllers/auditoriaCies/crear.php',
 
     ],
     'GET' => [
@@ -26,12 +27,15 @@ $routes = [
         'api/usuarios/(\d+)'   => 'controllers/usuarios/obtener.php',
         'api/servicio-auditar' => 'controllers/servicioAuditar/listar.php',
         'api/servicio-auditar/(\d+)' => 'controllers/servicioAuditar/obtener.php',
+        'api/servicio-auditar/nombre/([^/]+)' => 'controllers/servicioAuditar/obtenerPorNombre.php',
         'api/sedes' => 'controllers/sedes/listar.php',
         'api/sedes/(\d+)' => 'controllers/sedes/obtener.php',
+        'api/sedes/nombre/([^/]+)' => 'controllers/sedes/obtenerPorNombre.php',
         'api/eps' => 'controllers/eps/listar.php',
         'api/eps/(\d+)' => 'controllers/eps/obtener.php',
         'api/profesional' => 'controllers/profesional/listar.php',
         'api/profesional/(\d+)' => 'controllers/profesional/obtener.php',
+        'api/profesional/filtro/([^/]+)' => 'controllers/profesional/obtenerPorNombre.php',
         'api/dimenciones' => 'controllers/dimenciones/listar.php',
         'api/dimenciones/(\d+)' => 'controllers/dimenciones/obtener.php',
         'api/dimencionesDto/obtenerTodosCriterios' => 'controllers/dimenciones/obtenerTodosCriterios.php',
@@ -39,8 +43,21 @@ $routes = [
         'api/criterios/(\d+)' => 'controllers/criterios/obtener.php',
         'api/cie10' => 'controllers/cie10/listar.php',
         'api/cie10/(\d+)' => 'controllers/cie10/obtener.php',
+        'api/cie10/filtro/([^/]+)' => 'controllers/cie10/obtenerPorNombre.php',
         'api/auditoria' => 'controllers/auditoria/listar.php',
         'api/auditoria/(\d+)' => 'controllers/auditoria/obtener.php',
+        'api/auditoria/informe' => 'controllers/auditoria/InformeAuditoria.php',
+        'api/auditoria/recientes' => 'controllers/auditoria/auditoriaRecientes.php',
+        'api/auditoria/resumenHoy/(\d{4}-\d{2}-\d{2})' => 'controllers/auditoria/resumenHoy.php',
+        'api/auditoria/metricas' => 'controllers/auditoria/metricasAuditoria.php',
+        'api/auditoria/listarAuditorias' => 'controllers/auditoria/listarAuditorias.php',
+        'api/auditoria/listarAuditoriasFiltro' => 'controllers/auditoria/listarAuditoriasFiltro.php',
+        'api/auditoria/detalle/(\d+)' => 'controllers/auditoria/detalleAuditoria.php',
+        'api/auditoria/DetalleEvaluacion/(\d+)' => 'controllers/auditoria/detalleAuditoriaEvaluacion.php',
+        'api/pacientes' => 'controllers/pacientes/listar.php',
+        'api/pacientes/(\d+)' => 'controllers/pacientes/obtener.php',
+        'api/pacientes/filtro/([^/]+)' => 'controllers/pacientes/obtenerPorNombre.php',
+        'api/roles' => 'controllers/roles/listar.php',
 
     ],
     'PUT' => [
@@ -53,6 +70,7 @@ $routes = [
         'api/criterios/(\d+)' => 'controllers/criterios/actualizar.php',
         'api/cie10/(\d+)' => 'controllers/cie10/actualizar.php',
         'api/auditoria/(\d+)' => 'controllers/auditoria/actualizar.php',
+        'api/pacientes/(\d+)' => 'controllers/pacientes/actualizar.php',
 
     ],
     'DELETE' => [
@@ -65,6 +83,7 @@ $routes = [
         'api/criterios/(\d+)' => 'controllers/criterios/eliminar.php',
         'api/cie10/(\d+)' => 'controllers/cie10/eliminar.php',
         'api/auditoria/(\d+)' => 'controllers/auditoria/eliminar.php',
+        'api/pacientes/(\d+)' => 'controllers/pacientes/eliminar.php',
     ]
 ];
 

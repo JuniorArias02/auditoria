@@ -17,8 +17,7 @@ if ($user) {
         'id'       => $user['id'],
         'username' => $user['username'],
         'email'    => $user['email'],
-        'rol_id'   => $user['rol_id'],
-        'rol'      => $user['rol_nombre']
+        'rol_id'   => $user['rol_id']
     ]);
 
 
