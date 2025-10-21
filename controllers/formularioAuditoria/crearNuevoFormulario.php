@@ -1,0 +1,27 @@
+<?php
+require_once __DIR__ . '/../../middlewares/cors.php';
+require_once __DIR__ . '/../../db/conexion.php';
+require_once __DIR__ . '/../../middlewares/auth.php';
+require_once __DIR__ . '/../../models/FormularioAuditoria.php';
+
+// Leer el JSON enviado desde el frontend
+$input = json_decode(file_get_contents('php://input'), true);
+
+if (!$input) {
+    http_response_code(400);
+    echo json_encode(['error' => 'JSON inválido']);
+    exit;
+}
+
+// Instanciar el modelo
+$formularioModel = new FormularioAuditoria($pdo);
+
+// Crear el formulario completo
+$result = $formularioModel->crearNuevoFormulario($input);
+
+// Devolver respuesta JSON
+if (isset($result['error'])) {
+    http_response_code(500);
+}
+
+echo json_encode($result);

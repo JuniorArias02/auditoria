@@ -20,6 +20,7 @@ $routes = [
         'api/respuesta' => 'controllers/respuesta/crear.php',
         'api/pacientes' => 'controllers/pacientes/crear.php',
         'api/auditoriaCies' => 'controllers/auditoriaCies/crear.php',
+        'api/formularioAuditoria' => 'controllers/formularioAuditoria/crearNuevoFormulario.php',
 
     ],
     'GET' => [
@@ -44,7 +45,6 @@ $routes = [
         'api/cie10' => 'controllers/cie10/listar.php',
         'api/cie10/(\d+)' => 'controllers/cie10/obtener.php',
         'api/cie10/filtro/([^/]+)' => 'controllers/cie10/obtenerPorNombre.php',
-        'api/auditoria' => 'controllers/auditoria/listar.php',
         'api/auditoria/(\d+)' => 'controllers/auditoria/obtener.php',
         'api/auditoria/informe' => 'controllers/auditoria/InformeAuditoria.php',
         'api/auditoria/recientes' => 'controllers/auditoria/auditoriaRecientes.php',
@@ -54,11 +54,13 @@ $routes = [
         'api/auditoria/listarAuditoriasFiltro' => 'controllers/auditoria/listarAuditoriasFiltro.php',
         'api/auditoria/detalle/(\d+)' => 'controllers/auditoria/detalleAuditoria.php',
         'api/auditoria/DetalleEvaluacion/(\d+)' => 'controllers/auditoria/detalleAuditoriaEvaluacion.php',
-        'api/pacientes' => 'controllers/pacientes/listar.php',
+        'api/pacientes/listar' => 'controllers/pacientes/listar.php',
         'api/pacientes/(\d+)' => 'controllers/pacientes/obtener.php',
         'api/pacientes/filtro/([^/]+)' => 'controllers/pacientes/obtenerPorNombre.php',
         'api/roles' => 'controllers/roles/listar.php',
-
+        'api/formularioAuditoria' => 'controllers/formularioAuditoria/listar.php',
+        'api/obtenerFormularioDimenciones/(\d+)' => 'controllers/formularioAuditoria/obtenerFormularioCompleto.php',
+        'api/formularioDimensiones/obtenerDimencionesPorFormulario/(\d+)' => 'controllers/formularioDimensiones/obtenerDimencionesPorFormulario.php',
     ],
     'PUT' => [
         'api/usuarios/(\d+)'   => 'controllers/usuarios/actualizar.php',
@@ -71,7 +73,7 @@ $routes = [
         'api/cie10/(\d+)' => 'controllers/cie10/actualizar.php',
         'api/auditoria/(\d+)' => 'controllers/auditoria/actualizar.php',
         'api/pacientes/(\d+)' => 'controllers/pacientes/actualizar.php',
-
+        'api/formularioAuditoria' => 'controllers/formularioAuditoria/actualizarFormulario.php',
     ],
     'DELETE' => [
         'api/usuarios/(\d+)'   => 'controllers/usuarios/eliminar.php',

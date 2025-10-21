@@ -11,12 +11,68 @@ class Pacientes
 	}
 
 	// Listar todos los pacientes
-	public function listar()
+	public function listar($query = '')
 	{
-		$stmt = $this->pdo->prepare("SELECT p.*, e.nombre AS eps_nombre FROM pacientes p LEFT JOIN eps e ON p.eps_id = e.id");
+		$isSearching = !empty($query);
+		$limit = $isSearching ? 15 : 30;
+
+		$sql = "SELECT p.*, e.nombre AS eps_nombre
+            FROM pacientes p
+            LEFT JOIN eps e ON p.eps_id = e.id
+            WHERE (:query = '' OR p.nombre_completo LIKE :query OR p.documento LIKE :query)
+            ORDER BY p.id DESC
+            LIMIT :limit";
+
+		$stmt = $this->pdo->prepare($sql);
+		$stmt->bindValue(':query', "%$query%", PDO::PARAM_STR);
+		$stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
 		$stmt->execute();
-		return $stmt->fetchAll(PDO::FETCH_ASSOC);
+		$pacientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+		$countSql = "SELECT COUNT(*) FROM pacientes 
+                 WHERE (:query = '' OR nombre_completo LIKE :query OR documento LIKE :query)";
+		$countStmt = $this->pdo->prepare($countSql);
+		$countStmt->bindValue(':query', "%$query%", PDO::PARAM_STR);
+		$countStmt->execute();
+		$total = $countStmt->fetchColumn();
+
+		return [
+			'data' => $pacientes,
+			'total' => (int)$total,
+		];
 	}
+
+
+	public function buscar($query)
+	{
+		$sql = "SELECT p.*, e.nombre AS eps_nombre
+            FROM pacientes p
+            LEFT JOIN eps e ON p.eps_id = e.id
+            WHERE p.nombre_completo LIKE :query
+               OR p.documento LIKE :query
+            ORDER BY p.id DESC
+            LIMIT 15";
+
+		$stmt = $this->pdo->prepare($sql);
+		$stmt->bindValue(':query', "%$query%", PDO::PARAM_STR);
+		$stmt->execute();
+
+		$pacientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+		$countSql = "SELECT COUNT(*) FROM pacientes
+                 WHERE nombre_completo LIKE :query
+                    OR documento LIKE :query";
+		$countStmt = $this->pdo->prepare($countSql);
+		$countStmt->bindValue(':query', "%$query%", PDO::PARAM_STR);
+		$countStmt->execute();
+		$total = $countStmt->fetchColumn();
+
+		return [
+			'data' => $pacientes,
+			'total' => (int)$total,
+		];
+	}
+
 
 	// Buscar paciente por ID
 	public function obtener($id)

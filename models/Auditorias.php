@@ -17,12 +17,13 @@ class Auditoria
         $data['porcentaje_cumplimiento'] = round($data['porcentaje_cumplimiento'], 2);
 
         $sql = "INSERT INTO auditorias 
-        (creador_id, fecha_auditoria, fecha_atencion, servicio_auditado, paciente_id, sede_id, profesional_id, puntaje_total, total_criterios, porcentaje_cumplimiento)
-        VALUES (:creador_id,:fecha_auditoria, :fecha_atencion, :servicio_auditado, :paciente_id, :sede_id, :profesional_id, :puntaje_total, :total_criterios, :porcentaje_cumplimiento)";
+        (creador_id, formulario_auditoria_id, fecha_auditoria, fecha_atencion, servicio_auditado, paciente_id, sede_id, profesional_id, puntaje_total, total_criterios, porcentaje_cumplimiento)
+        VALUES (:creador_id,:formulario_auditoria_id, :fecha_auditoria, :fecha_atencion, :servicio_auditado, :paciente_id, :sede_id, :profesional_id, :puntaje_total, :total_criterios, :porcentaje_cumplimiento)";
 
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([
             'creador_id'              => $data['creador_id'],
+            'formulario_auditoria_id' => $data['formulario_auditoria_id'],
             'fecha_auditoria'         => $data['fecha_auditoria'],
             'fecha_atencion'          => $data['fecha_atencion'],
             'servicio_auditado'       => $data['servicio_auditado'],
@@ -34,7 +35,7 @@ class Auditoria
             'porcentaje_cumplimiento' => $data['porcentaje_cumplimiento']
         ]);
 
-        return $this->pdo->lastInsertId();
+        return $this->pdo->lastInsertId(); 
     }
 
 

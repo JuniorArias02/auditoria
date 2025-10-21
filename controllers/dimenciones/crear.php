@@ -6,17 +6,18 @@ require_once __DIR__ . '/../../models/Dimensiones.php';
 
 $data = json_decode(file_get_contents('php://input'), true);
 
-$nombre = $data['nombre'] ?? '';
-$orden  = $data['orden'] ?? null;
+$nombre = $data['nombre'];
+$orden  = $data['orden'];
+$porcentaje = $data['porcentaje'] ;
 
-if (!$nombre || $orden === null) {
+if (!$nombre || $orden === null || $porcentaje === null) {
     http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'Nombre y orden son obligatorios']);
     exit;
 }
 
 $dimension = new Dimensiones($pdo);
-$id = $dimension->crear($nombre, $orden);
+$id = $dimension->crear($nombre, $orden, $porcentaje);
 
 if ($id) {
     echo json_encode([
