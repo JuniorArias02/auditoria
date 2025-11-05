@@ -35,7 +35,7 @@ class Auditoria
             'porcentaje_cumplimiento' => $data['porcentaje_cumplimiento']
         ]);
 
-        return $this->pdo->lastInsertId(); 
+        return $this->pdo->lastInsertId();
     }
 
 
@@ -285,5 +285,206 @@ class Auditoria
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute(['id' => $id]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+
+    /**
+     * Obtener resumen de auditorías.
+     *
+     * Reglas:
+     * - $dias === 0 => rango = mes actual (desde primer día del mes hasta hoy). comparativa = mes calendario anterior.
+     * - $dias === 30 => rango = mes calendario anterior completo. comparativa = mes anterior a ese.
+     * - $dias > 0 => rango = últimos $dias días (incluye hoy). comparativa = $dias días anteriores a ese rango.
+     *
+     * Retorna: auditorias, cumplimiento, profesionales y auditorias_mes (total mes calendario actual)
+     */
+    public function obtenerResumenAuditorias($dias = 30)
+    {
+        $hoy = date('Y-m-d');
+        $inicio = date('Y-m-d', strtotime("-$dias days"));
+        $comparativa_inicio = date('Y-m-d', strtotime("-" . ($dias * 2) . " days"));
+        $comparativa_fin = $inicio;
+
+        // Variación %
+        $variacion = function ($actual, $anterior) {
+            return $anterior > 0 ? round((($actual - $anterior) / $anterior) * 100, 2) : 0;
+        };
+
+        // =======================
+        // 📊 AUDITORÍAS
+        // =======================
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM auditorias WHERE fecha_auditoria BETWEEN ? AND ?");
+        $stmt->execute([$inicio, $hoy]);
+        $auditorias_actual = (int)$stmt->fetchColumn();
+
+        $stmt->execute([$comparativa_inicio, $comparativa_fin]);
+        $auditorias_anterior = (int)$stmt->fetchColumn();
+
+        // =======================
+        // 🎯 CUMPLIMIENTO PROMEDIO
+        // =======================
+        $stmt = $this->pdo->prepare("SELECT AVG(porcentaje_cumplimiento) FROM auditorias WHERE fecha_auditoria BETWEEN ? AND ?");
+        $stmt->execute([$inicio, $hoy]);
+        $cumplimiento_actual = round((float)$stmt->fetchColumn(), 2);
+
+        $stmt->execute([$comparativa_inicio, $comparativa_fin]);
+        $cumplimiento_anterior = round((float)$stmt->fetchColumn(), 2);
+
+        // =======================
+        // 👥 PROFESIONALES ÚNICOS
+        // =======================
+        $stmt = $this->pdo->prepare("SELECT COUNT(DISTINCT profesional_id) FROM auditorias WHERE fecha_auditoria BETWEEN ? AND ?");
+        $stmt->execute([$inicio, $hoy]);
+        $profesionales_actual = (int)$stmt->fetchColumn();
+
+        $stmt->execute([$comparativa_inicio, $comparativa_fin]);
+        $profesionales_anterior = (int)$stmt->fetchColumn();
+
+        // =======================
+        // 🗓️ AUDITORÍAS POR MES
+        // =======================
+        // Mes actual
+        $mes_inicio = date('Y-m-01');
+        $mes_fin = date('Y-m-t');
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM auditorias WHERE fecha_auditoria BETWEEN ? AND ?");
+        $stmt->execute([$mes_inicio, $mes_fin]);
+        $auditorias_mes_actual = (int)$stmt->fetchColumn();
+
+        // Mes anterior
+        $mes_anterior_inicio = date('Y-m-01', strtotime('-1 month'));
+        $mes_anterior_fin = date('Y-m-t', strtotime('-1 month'));
+        $stmt->execute([$mes_anterior_inicio, $mes_anterior_fin]);
+        $auditorias_mes_anterior = (int)$stmt->fetchColumn();
+
+        // =======================
+        // 🔢 TOTAL DE AUDITORÍAS
+        // =======================
+        $stmt = $this->pdo->query("SELECT COUNT(*) FROM auditorias");
+        $total_auditorias = (int)$stmt->fetchColumn();
+
+        // =======================
+        // 🔁 RETORNO
+        // =======================
+        return [
+            'rango' => [
+                'inicio' => $inicio,
+                'fin' => $hoy,
+                'comparativa_inicio' => $comparativa_inicio,
+                'comparativa_fin' => $comparativa_fin
+            ],
+            'auditorias' => [
+                'actual' => $auditorias_actual,
+                'anterior' => $auditorias_anterior,
+                'variacion' => $variacion($auditorias_actual, $auditorias_anterior)
+            ],
+            'cumplimiento_promedio' => [
+                'actual' => $cumplimiento_actual,
+                'anterior' => $cumplimiento_anterior,
+                'variacion' => $variacion($cumplimiento_actual, $cumplimiento_anterior)
+            ],
+            'profesionales' => [
+                'actual' => $profesionales_actual,
+                'anterior' => $profesionales_anterior,
+                'variacion' => $variacion($profesionales_actual, $profesionales_anterior)
+            ],
+            'auditorias_mes' => [
+                'actual' => $auditorias_mes_actual,
+                'anterior' => $auditorias_mes_anterior,
+                'variacion' => $variacion($auditorias_mes_actual, $auditorias_mes_anterior)
+            ],
+            'ultimo_numero_auditoria' => $total_auditorias
+        ];
+    }
+
+    public function TendenciaCumplimento()
+    {
+        $sql = "
+        SELECT 
+            DATE_FORMAT(fecha_auditoria, '%Y-%m') AS mes,
+            ROUND(AVG(porcentaje_cumplimiento), 2) AS promedio_cumplimiento
+        FROM auditorias
+        WHERE porcentaje_cumplimiento IS NOT NULL
+        GROUP BY DATE_FORMAT(fecha_auditoria, '%Y-%m')
+        ORDER BY mes ASC
+    ";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function CumplimientoPorDimension()
+    {
+        $sql = "
+        SELECT 
+            d.nombre AS dimension,
+            ROUND(AVG(r.puntaje) * 100, 2) AS promedio_cumplimiento
+        FROM respuestas r
+        INNER JOIN criterios c ON r.criterio_id = c.id
+        INNER JOIN dimensiones d ON c.dimension_id = d.id
+        GROUP BY d.id, d.nombre
+        ORDER BY promedio_cumplimiento DESC
+    ";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function CumplimientoPorServicio()
+    {
+        $sql = "
+        SELECT 
+            s.nombre AS servicio,
+            ROUND(AVG(a.porcentaje_cumplimiento), 2) AS promedio_cumplimiento
+        FROM auditorias a
+        INNER JOIN servicio_auditar s ON a.servicio_auditado = s.id
+        WHERE a.porcentaje_cumplimiento IS NOT NULL
+        GROUP BY s.id, s.nombre
+        ORDER BY promedio_cumplimiento DESC
+    ";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function TopProfesionales()
+    {
+        $sql = "
+        SELECT 
+            p.id,
+            p.nombre,
+            p.cargo,
+            COUNT(a.id) AS total_auditorias,
+            ROUND(AVG(a.porcentaje_cumplimiento), 2) AS promedio_cumplimiento,
+            RANK() OVER (ORDER BY AVG(a.porcentaje_cumplimiento) DESC) AS puesto
+        FROM auditorias a
+        INNER JOIN profesionales p ON a.profesional_id = p.id
+        WHERE a.porcentaje_cumplimiento IS NOT NULL
+        GROUP BY p.id, p.nombre, p.cargo
+        ORDER BY promedio_cumplimiento DESC
+        LIMIT 5
+    ";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function obtenerReportesCompleto()
+    {
+        try {
+            return [
+                'tendencia' => $this->TendenciaCumplimento(),
+                'por_dimension' => $this->CumplimientoPorDimension(),
+                'por_servicio' => $this->CumplimientoPorServicio(),
+                'top_profesionales' => $this->TopProfesionales()
+            ];
+        } catch (Exception $e) {
+            return [
+                'error' => true,
+                'mensaje' => 'Error al cargar el dashboard: ' . $e->getMessage()
+            ];
+        }
     }
 }

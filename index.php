@@ -21,7 +21,6 @@ $routes = [
         'api/pacientes' => 'controllers/pacientes/crear.php',
         'api/auditoriaCies' => 'controllers/auditoriaCies/crear.php',
         'api/formularioAuditoria' => 'controllers/formularioAuditoria/crearNuevoFormulario.php',
-
     ],
     'GET' => [
         'api/usuarios'         => 'controllers/usuarios/listar.php',
@@ -54,6 +53,7 @@ $routes = [
         'api/auditoria/listarAuditoriasFiltro' => 'controllers/auditoria/listarAuditoriasFiltro.php',
         'api/auditoria/detalle/(\d+)' => 'controllers/auditoria/detalleAuditoria.php',
         'api/auditoria/DetalleEvaluacion/(\d+)' => 'controllers/auditoria/detalleAuditoriaEvaluacion.php',
+        'api/auditoria/resumenMensual/(\d+)' => 'controllers/auditoria/obtenerResumenAuditorias.php',
         'api/pacientes/listar' => 'controllers/pacientes/listar.php',
         'api/pacientes/(\d+)' => 'controllers/pacientes/obtener.php',
         'api/pacientes/filtro/([^/]+)' => 'controllers/pacientes/obtenerPorNombre.php',
@@ -61,6 +61,7 @@ $routes = [
         'api/formularioAuditoria' => 'controllers/formularioAuditoria/listar.php',
         'api/obtenerFormularioDimenciones/(\d+)' => 'controllers/formularioAuditoria/obtenerFormularioCompleto.php',
         'api/formularioDimensiones/obtenerDimencionesPorFormulario/(\d+)' => 'controllers/formularioDimensiones/obtenerDimencionesPorFormulario.php',
+        'api/reportes/auditoriasCompleto' => 'controllers/auditoria/obtenerReportesCompleto.php',
     ],
     'PUT' => [
         'api/usuarios/(\d+)'   => 'controllers/usuarios/actualizar.php',
