@@ -4,6 +4,8 @@ require_once __DIR__ . '/../../db/conexion.php';
 require_once __DIR__ . '/../../middlewares/auth.php';
 require_once __DIR__ . '/../../models/FormularioAuditoria.php';
 
+use App\Models\FormularioAuditoria;
+
 // Leer el JSON enviado desde el frontend
 $input = json_decode(file_get_contents('php://input'), true);
 

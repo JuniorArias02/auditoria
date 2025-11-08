@@ -4,6 +4,8 @@ require_once __DIR__ . '/../../middlewares/auth.php';
 require_once __DIR__ . '/../../db/conexion.php';
 require_once __DIR__ . '/../../models/AuditoriaCies.php';
 
+use App\Models\AuditoriaCies;
+
 $data = json_decode(file_get_contents("php://input"), true);
 $cie10_id = $data['cie10_id'] ?? null;
 $auditorias_id = $data['auditorias_id'] ?? null;

@@ -3,6 +3,8 @@ require_once __DIR__ . '/../../middlewares/cors.php';
 require_once __DIR__ . '/../../db/conexion.php';
 require_once __DIR__ . '/../../models/Sedes.php';
 
+use App\Models\Sede;
+
 $nombre = $params[0] ?? null;
 if (!$nombre) {
     http_response_code(400);

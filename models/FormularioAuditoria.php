@@ -1,4 +1,11 @@
 <?php
+
+
+namespace App\Models;
+use PDO;
+use PDOException;
+
+
 require_once __DIR__ . '/../db/conexion.php';
 
 class FormularioAuditoria

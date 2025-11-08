@@ -1,4 +1,9 @@
 <?php
+
+namespace App\Models;
+use PDO;
+use Exception;
+
 require_once __DIR__ . '/../db/conexion.php';
 
 class Auditoria
@@ -180,6 +185,10 @@ class Auditoria
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    
+  
+
+
     public function listarAuditoriasFiltro($busqueda = null, $clasificacion = null, $fecha_inicio = null, $fecha_fin = null)
     {
         $sql = "SELECT
@@ -276,7 +285,8 @@ class Auditoria
                 r.puntaje,
                 r.observaciones,
                 c.descripcion AS criterioDescripcion,
-                d.nombre AS dimensionNombre
+                d.nombre AS dimensionNombre,
+                r.observaciones AS respuestaObservaciones
             FROM respuestas AS r
             LEFT JOIN criterios AS c ON c.id = r.criterio_id
             LEFT JOIN dimensiones AS d ON d.id = c.dimension_id

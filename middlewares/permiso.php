@@ -16,7 +16,7 @@ function requirePermission($permiso) {
 
     if (!in_array($permiso, $permisos)) {
         http_response_code(403);
-        echo json_encode(['error' => '❌ No tienes permiso para esta acción.']);
+        echo json_encode(['error' => 'No tienes permiso para esta acción.']);
         exit();
     }
 }

@@ -1,4 +1,7 @@
 <?php
+namespace App\Models;
+use PDO;
+
 require_once __DIR__ . '/../db/conexion.php';
 
 class Respuesta {

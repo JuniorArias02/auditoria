@@ -3,6 +3,8 @@ require_once __DIR__ . '/../../middlewares/cors.php';
 require_once __DIR__ . '/../../middlewares/permiso.php';
 require_once __DIR__ . '/../../models/Usuario.php';
 
+use App\Models\Usuario;
+
 requirePermission('usuarios:eliminar');
 
 $usuario = new Usuario($pdo);

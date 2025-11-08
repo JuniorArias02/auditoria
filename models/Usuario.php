@@ -1,15 +1,20 @@
 <?php
-require_once __DIR__ . '/../db/conexion.php';
+namespace App\Models;
+use PDO;
 
-class Usuario {
+require_once __DIR__ . '/../db/conexion.php';
+class Usuario
+{
     private $pdo;
 
-    public function __construct($pdo) {
+    public function __construct($pdo)
+    {
         $this->pdo = $pdo;
     }
 
     // LOGIN (  username o email)
-    public function login($identificador, $password) {
+    public function login($identificador, $password)
+    {
         $sql = "SELECT u.*, r.nombre AS rol_nombre 
                 FROM usuarios u
                 LEFT JOIN roles r ON u.rol_id = r.id
@@ -22,14 +27,39 @@ class Usuario {
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($user && password_verify($password, $user['password'])) {
-            unset($user['password']); 
+            unset($user['password']);
+            $user['permissions'] = $this->obtenerPermisos($user['id']);
             return $user;
         }
         return false;
     }
 
+    public function actualizarContrasena($id, $newPassword)
+    {
+        $hash = password_hash($newPassword, PASSWORD_DEFAULT);
+        $sql = "UPDATE usuarios SET password = :password, updated_at = NOW() WHERE id = :id";
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute([
+            'password' => $hash,
+            'id'       => $id
+        ]);
+    }
+
+    public function obtenerPermisos($id)
+    {
+        $sql = "SELECT p.nombre
+            FROM  rol_permiso as r
+            INNER JOIN usuarios as s ON s.rol_id = r.rol_id
+            INNER JOIN permisos as p ON r.permiso_id = p.id 
+            WHERE s.id = :id";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['id' => $id]);
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
+    }
+
     // CREAR USUARIO
-    public function crear($nombre, $username, $email, $password, $rol_id) {
+    public function crear($nombre, $username, $email, $password, $rol_id)
+    {
         $hash = password_hash($password, PASSWORD_DEFAULT);
         $sql = "INSERT INTO usuarios 
                     (nombre_completo, username, email, password, rol_id, activo, created_at, updated_at)
@@ -45,7 +75,8 @@ class Usuario {
     }
 
     // LISTAR TODOS LOS USUARIOS
-    public function listar() {
+    public function listar()
+    {
         $sql = "SELECT u.id, u.nombre_completo, u.username, u.email, u.rol_id, r.nombre AS rol_nombre,
                        u.activo, u.created_at, u.updated_at
                 FROM usuarios u
@@ -55,7 +86,8 @@ class Usuario {
     }
 
     // OBTENER UN USUARIO POR ID
-    public function obtener($id) {
+    public function obtener($id)
+    {
         $sql = "SELECT u.id, u.nombre_completo, u.username, u.email, u.rol_id, r.nombre AS rol_nombre,
                        u.activo, u.created_at, u.updated_at
                 FROM usuarios u
@@ -67,7 +99,8 @@ class Usuario {
     }
 
     // ACTUALIZAR USUARIO
-    public function actualizar($id, $nombre, $username, $email, $rol_id, $activo, $password = null) {
+    public function actualizar($id, $nombre, $username, $email, $rol_id, $activo, $password = null)
+    {
         $params = [
             'id'       => $id,
             'nombre'   => $nombre,
@@ -96,9 +129,12 @@ class Usuario {
     }
 
     // ELIMINAR USUARIO
-    public function eliminar($id) {
+    public function eliminar($id)
+    {
         $sql = "DELETE FROM usuarios WHERE id = :id";
         $stmt = $this->pdo->prepare($sql);
         return $stmt->execute(['id' => $id]);
     }
+
+   
 }

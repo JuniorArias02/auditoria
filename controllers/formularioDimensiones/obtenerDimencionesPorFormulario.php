@@ -4,6 +4,8 @@ require_once __DIR__ . '/../../db/conexion.php';
 require_once __DIR__ . '/../../middlewares/auth.php';
 require_once __DIR__ . '/../../models/FormularioDimensiones.php';
 
+use App\Models\FormularioDimensiones;
+
 $formulario_auditoria_id = $params[0];
 
 if (!$formulario_auditoria_id) {

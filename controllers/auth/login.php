@@ -1,18 +1,26 @@
 <?php
+require_once __DIR__ . '/../../vendor/autoload.php';
 require_once __DIR__ . '/../../middlewares/cors.php';
 require_once __DIR__ . '/../../db/conexion.php';
-require_once __DIR__ . '/../../models/Usuario.php';
 require_once __DIR__ . '/../../utils/jwt.php';
 
-$data = json_decode(file_get_contents('php://input'), true);
+use App\Models\Usuario;
+use App\Services\EmailService;
 
-$identificador = $data['identificador'] ?? '';
-$password      = $data['password'] ?? '';
+header('Content-Type: application/json');
 
-$usuario = new Usuario($pdo);
-$user = $usuario->login($identificador, $password);
+try {
+    $data = json_decode(file_get_contents('php://input'), true) ?? [];
+    $identificador = $data['identificador'] ?? '';
+    $password      = $data['password'] ?? '';
 
-if ($user) {
+    $usuario = new Usuario($pdo);
+    $user = $usuario->login($identificador, $password);
+
+    if (!$user) {
+        throw new Exception('Credenciales incorrectas', 401);
+    }
+
     $token = generarToken([
         'id'       => $user['id'],
         'username' => $user['username'],
@@ -20,6 +28,17 @@ if ($user) {
         'rol_id'   => $user['rol_id']
     ]);
 
+    // Enviar correo de bienvenida (opcional)
+    EmailService::send(
+        $user['email'],
+        'Bienvenido de nuevo',
+        'welcome',
+        [
+            'nombre' => $user['username'],
+            'app' => 'AuditoriasIps',
+            'url' => 'https://auditoriaips.clinicalhouse.co/'
+        ]
+    );
 
     echo json_encode([
         'success' => true,
@@ -27,10 +46,11 @@ if ($user) {
         'token'   => $token,
         'user'    => $user
     ]);
-} else {
-    http_response_code(401);
+
+} catch (Exception $e) {
+    http_response_code($e->getCode() ?: 500);
     echo json_encode([
         'success' => false,
-        'message' => 'Credenciales incorrectas'
+        'message' => $e->getMessage()
     ]);
 }
