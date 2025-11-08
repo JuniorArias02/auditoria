@@ -28,17 +28,16 @@ try {
         'rol_id'   => $user['rol_id']
     ]);
 
-    // Enviar correo de bienvenida (opcional)
-    EmailService::send(
-        $user['email'],
-        'Bienvenido de nuevo',
-        'welcome',
-        [
-            'nombre' => $user['username'],
-            'app' => 'AuditoriasIps',
-            'url' => 'https://auditoriaips.clinicalhouse.co/'
-        ]
-    );
+    // EmailService::send(
+    //     $user['email'],
+    //     'Bienvenido de nuevo',
+    //     'welcome',
+    //     [
+    //         'nombre' => $user['username'],
+    //         'app' => 'AuditoriasIps',
+    //         'url' => 'https://auditoriaips.clinicalhouse.co/'
+    //     ]
+    // );
 
     echo json_encode([
         'success' => true,
