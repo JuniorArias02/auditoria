@@ -1,5 +1,9 @@
 <?php
-require_once __DIR__ . '/../db/conexion.php';
+namespace App\Repositories;
+
+use App\Database\Database;
+use \PDO;
+
 
 class DimensionesRepository
 {

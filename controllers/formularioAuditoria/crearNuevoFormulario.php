@@ -1,29 +1,35 @@
 <?php
-require_once __DIR__ . '/../../middlewares/cors.php';
-require_once __DIR__ . '/../../db/conexion.php';
-require_once __DIR__ . '/../../middlewares/auth.php';
-require_once __DIR__ . '/../../models/FormularioAuditoria.php';
-
+use App\Bootstrap\App;
 use App\Models\FormularioAuditoria;
+use App\Services\Logger;
 
-// Leer el JSON enviado desde el frontend
-$input = json_decode(file_get_contents('php://input'), true);
+header('Content-Type: application/json');
 
-if (!$input) {
-    http_response_code(400);
-    echo json_encode(['error' => 'JSON inválido']);
-    exit;
+try {
+    $pdo = App::getPdo();
+
+    $input = json_decode(file_get_contents('php://input'), true);
+    if (!$input) {
+        throw new \Exception('JSON inválido', 400);
+    }
+
+    $formularioModel = new FormularioAuditoria($pdo);
+    $result = $formularioModel->crearNuevoFormulario($input);
+
+    if (isset($result['error'])) {
+        throw new \Exception($result['error'], 500);
+    }
+
+    echo json_encode([
+        'success' => true,
+        'data' => $result
+    ]);
+
+} catch (\Exception $e) {
+    Logger::exception($e);
+    http_response_code($e->getCode() ?: 500);
+    echo json_encode([
+        'success' => false,
+        'message' => $e->getMessage()
+    ]);
 }
-
-// Instanciar el modelo
-$formularioModel = new FormularioAuditoria($pdo);
-
-// Crear el formulario completo
-$result = $formularioModel->crearNuevoFormulario($input);
-
-// Devolver respuesta JSON
-if (isset($result['error'])) {
-    http_response_code(500);
-}
-
-echo json_encode($result);

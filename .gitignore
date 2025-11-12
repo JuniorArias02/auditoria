@@ -4,3 +4,4 @@ vendor/
 .htaccess
 .env
 *.log
+**/*.log

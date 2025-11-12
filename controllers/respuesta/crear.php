@@ -1,29 +1,31 @@
 <?php
-require_once __DIR__ . '/../../middlewares/cors.php';
-require_once __DIR__ . '/../../middlewares/auth.php';
-require_once __DIR__ . '/../../db/conexion.php';
-require_once __DIR__ . '/../../models/Respuesta.php';
 
+use App\Bootstrap\App;
+use App\Middlewares\AuthMiddleware;
 use App\Models\Respuesta;
-
-$data = json_decode(file_get_contents('php://input'), true);
-
-// Validar datos
-if (
-    empty($data['auditoria_id']) ||
-    empty($data['criterio_id']) ||
-    !isset($data['puntaje'])
-) {
-    http_response_code(400);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Faltan campos requeridos: auditoria_id, criterio_id o puntaje.'
-    ]);
-    exit;
-}
+use App\Services\Logger;
 
 try {
+    $userData = AuthMiddleware::check();
+    $pdo = App::getPdo();
+
+    $data = json_decode(file_get_contents('php://input'), true);
+
+
     $respuesta = new Respuesta($pdo);
+
+    if (
+        empty($data['auditoria_id']) ||
+        empty($data['criterio_id']) ||
+        !isset($data['puntaje'])
+    ) {
+        http_response_code(400);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Faltan campos requeridos: auditoria_id, criterio_id o puntaje.'
+        ]);
+        exit;
+    }
 
     $creado = $respuesta->crear(
         $data['auditoria_id'],
@@ -46,6 +48,7 @@ try {
         ]);
     }
 } catch (Exception $e) {
+    Logger::exception($e);
     http_response_code(500);
     echo json_encode([
         'success' => false,

@@ -1,11 +1,19 @@
 <?php
-require_once __DIR__ . '/../../middlewares/cors.php';
-require_once __DIR__ . '/../../db/conexion.php';
-require_once __DIR__ . '/../../models/Sedes.php';
+use App\Bootstrap\App;
+use App\Models\Sedes;
+use App\Services\Logger;
 
-use App\Models\Sede;
+try {
 
-$sede = new Sede($pdo);
-$sedes = $sede->obtenerTodos();
+	$pdo = App::getPdo();
 
-echo json_encode(['success' => true, 'data' => $sedes]);
+	$sede = new Sedes($pdo);
+	$sedes = $sede->obtenerTodos();
+
+	echo json_encode(['success' => true, 'data' => $sedes]);
+} catch (\Exception $th) {
+	Logger::exception($th);
+	http_response_code(500);
+	echo json_encode(['success' => false, 'message' => 'Error del servidor']);
+	exit;
+}

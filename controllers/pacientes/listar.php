@@ -1,20 +1,28 @@
 <?php
-require_once __DIR__ . '/../../middlewares/cors.php';
-require_once __DIR__ . '/../../middlewares/auth.php';
-require_once __DIR__ . '/../../db/conexion.php';
-require_once __DIR__ . '/../../models/Pacientes.php';
 
+use App\Bootstrap\App;
+use App\Middlewares\AuthMiddleware;
 use App\Models\Pacientes;
+use App\Services\Logger;
 
-$pacienteModel = new Pacientes($pdo);
+try {
+	$userData = AuthMiddleware::check();
+	$pdo = App::getPdo();
+	$pacienteModel = new Pacientes($pdo);
 
-$query = $_GET['query'] ?? '';
-$response = $pacienteModel->listar($query);
+	$query = $_GET['query'] ?? '';
+	$response = $pacienteModel->listar($query);
 
-echo json_encode(
-	[
-		'success' => true,
-		'data' => $response['data'],
-		'total' => $response['total'],
-	]
-);
+	echo json_encode(
+		[
+			'success' => true,
+			'data' => $response['data'],
+			'total' => $response['total'],
+		]
+	);
+} catch (\Throwable $th) {
+	Logger::exception($th);
+	http_response_code($th->getCode() ?: 500);
+	echo json_encode(['success' => false, 'message' => $th->getMessage()]);
+	exit;
+}

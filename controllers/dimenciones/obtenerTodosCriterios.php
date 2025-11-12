@@ -1,11 +1,26 @@
 <?php
-require_once __DIR__ . '/../../middlewares/cors.php';
-require_once __DIR__ . '/../../db/conexion.php';
-require_once __DIR__ . '/../../repositories/DimensionesRepository.php';
+use App\Bootstrap\App;
+use App\Repositories\DimensionesRepository;
+use App\Services\Logger;
 
-use App\Models\Dimensiones;
+header('Content-Type: application/json');
 
-$dimension = new DimensionesRepository($pdo);
-$data = $dimension->obtenerTodosLosCriterios();
+try {
+    $pdo = App::getPdo();
 
-echo json_encode($data);
+    $dimensionRepo = new DimensionesRepository($pdo);
+    $data = $dimensionRepo->obtenerTodosLosCriterios();
+
+    echo json_encode([
+        'success' => true,
+        'data' => $data
+    ]);
+
+} catch (\Exception $e) {
+    Logger::exception($e);
+    http_response_code($e->getCode() ?: 500);
+    echo json_encode([
+        'success' => false,
+        'message' => $e->getMessage()
+    ]);
+}

@@ -1,23 +1,31 @@
 <?php
-require_once __DIR__ . '/../../middlewares/cors.php';
-require_once __DIR__ . '/../../db/conexion.php';
-require_once __DIR__ . '/../../models/Pacientes.php';
 
+use App\Bootstrap\App;
 use App\Models\Pacientes;
+use App\Services\Logger;
 
-$nombre = $params[0] ?? null;
-if (!$nombre) {
-    http_response_code(400);
-    echo json_encode(['success' => false, 'message' => 'Nombre es requerido']);
+try {
+    $pdo = App::getPdo();
+
+    $nombre = $params[0] ?? null;
+    if (!$nombre) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => 'Nombre es requerido']);
+        exit;
+    }
+
+    $PacientesModel = new Pacientes($pdo);
+    $paciente = $PacientesModel->buscarPorNombreOCedula($nombre);
+
+    if ($paciente) {
+        echo json_encode(['success' => true, 'data' => $paciente]);
+    } else {
+        http_response_code(404);
+        echo json_encode(['success' => false, 'message' => 'paciente no encontrado']);
+    }
+} catch (\Throwable $th) {
+    Logger::exception($th);
+    http_response_code(500);
+    echo json_encode(['success' => false, 'message' => 'Error del servidor']);
     exit;
-}
-
-$PacientesModel = new Pacientes($pdo);
-$paciente = $PacientesModel->buscarPorNombreOCedula($nombre);
-
-if ($paciente) {
-    echo json_encode(['success' => true, 'data' => $paciente]);
-} else {
-    http_response_code(404);
-    echo json_encode(['success' => false, 'message' => 'paciente no encontrado']);
 }

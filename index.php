@@ -1,6 +1,13 @@
 <?php
-require_once __DIR__ . '/middlewares/cors.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
+use App\Bootstrap\App;
+use App\Services\Logger;
+
+App::init();
+
+$uri = trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
+$method = $_SERVER['REQUEST_METHOD'];
 $uri = trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
 $method = $_SERVER['REQUEST_METHOD'];
 
@@ -90,14 +97,17 @@ $routes = [
     ]
 ];
 
-// Función para buscar ruta con regex y parámetros
+// ---------------------------------------------------------
+
 $found = false;
+
 if (isset($routes[$method])) {
     foreach ($routes[$method] as $pattern => $file) {
         if (preg_match("#^$pattern$#", $uri, $matches)) {
             $found = true;
-            // Si hay parámetros (como id), los pasamos al controlador
             $params = array_slice($matches, 1);
+
+            Logger::info("[$method] $uri");
             require __DIR__ . '/' . $file;
             break;
         }
@@ -105,6 +115,7 @@ if (isset($routes[$method])) {
 }
 
 if (!$found) {
-    http_response_code(in_array($uri, array_merge(...array_values($routes))) ? 405 : 404);
-    echo json_encode(['error' => $found ? 'Método no permitido' : 'Ruta no encontrada', 'uri' => $uri]);
+    Logger::warning("Ruta no encontrada o método inválido: [$method] $uri");
+    http_response_code(404);
+    echo json_encode(['error' => 'Ruta no encontrada', 'uri' => $uri]);
 }

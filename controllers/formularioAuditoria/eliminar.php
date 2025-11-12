@@ -1,25 +1,35 @@
 <?php
-require_once __DIR__ . '/../../middlewares/cors.php';
-require_once __DIR__ . '/../../middlewares/auth.php';
-require_once __DIR__ . '/../../db/conexion.php';
-require_once __DIR__ . '/../../models/FormularioAuditoria.php';
-
+use App\Bootstrap\App;
 use App\Models\FormularioAuditoria;
+use App\Services\Logger;
 
-$id = $params[0] ?? null;
+header('Content-Type: application/json');
 
-if (!$id) {
-    http_response_code(400);
-    echo json_encode(['success' => false, 'message' => 'ID del paciente es requerido']);
-    exit;
-}
+try {
+    $pdo = App::getPdo();
+    $id = $params[0] ?? null;
 
-$formulario = new FormularioAuditoria($pdo);
-$eliminado = $formulario->eliminar($id);
+    if (!$id) {
+        throw new \Exception('ID del paciente es requerido', 400);
+    }
 
-if ($eliminado) {
-    echo json_encode(['success' => true, 'message' => 'Paciente eliminado correctamente']);
-} else {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Error al eliminar el paciente']);
+    $formulario = new FormularioAuditoria($pdo);
+    $eliminado = $formulario->eliminar($id);
+
+    if (!$eliminado) {
+        throw new \Exception('Error al eliminar el paciente', 500);
+    }
+
+    echo json_encode([
+        'success' => true,
+        'message' => 'Paciente eliminado correctamente'
+    ]);
+
+} catch (\Exception $e) {
+    Logger::exception($e);
+    http_response_code($e->getCode() ?: 500);
+    echo json_encode([
+        'success' => false,
+        'message' => $e->getMessage()
+    ]);
 }

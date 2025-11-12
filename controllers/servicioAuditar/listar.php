@@ -1,11 +1,19 @@
 <?php
-require_once __DIR__ . '/../../middlewares/cors.php';
-require_once __DIR__ . '/../../db/conexion.php';
-require_once __DIR__ . '/../../models/ServicioAuditar.php';
 
+use App\Bootstrap\App;
 use App\Models\ServicioAuditar;
+use App\Services\Logger;
 
-$servicioModel = new ServicioAuditar($pdo);
-$result = $servicioModel->listar();
+try {
+	$pdo = App::getPdo();
 
-echo json_encode(['success' => true, 'data' => $result]);
+	$servicioModel = new ServicioAuditar($pdo);
+	$result = $servicioModel->listar();
+
+	echo json_encode(['success' => true, 'data' => $result]);
+} catch (\Throwable $th) {
+	Logger::exception($th);
+	http_response_code($th->getCode() ?: 500);
+	echo json_encode(['success' => false, 'message' => $th->getMessage()]);
+	exit;
+}

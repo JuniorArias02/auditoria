@@ -1,15 +1,16 @@
 <?php
-require_once __DIR__ . '/../../vendor/autoload.php';
-require_once __DIR__ . '/../../middlewares/cors.php';
-require_once __DIR__ . '/../../db/conexion.php';
-require_once __DIR__ . '/../../utils/jwt.php';
 
+use App\Bootstrap\App;
 use App\Models\Usuario;
 use App\Services\EmailService;
+use App\Services\Logger;
+use App\Utils\JWTService;
 
 header('Content-Type: application/json');
 
 try {
+    $pdo = App::getPdo();
+
     $data = json_decode(file_get_contents('php://input'), true) ?? [];
     $identificador = $data['identificador'] ?? '';
     $password      = $data['password'] ?? '';
@@ -18,26 +19,29 @@ try {
     $user = $usuario->login($identificador, $password);
 
     if (!$user) {
-        throw new Exception('Credenciales incorrectas', 401);
+        Logger::request("Intento fallido de login | Identificador: $identificador");
+        throw new \Exception('Credenciales incorrectas', 401);
     }
 
-    $token = generarToken([
+    $token = JWTService::generarToken([
         'id'       => $user['id'],
         'username' => $user['username'],
         'email'    => $user['email'],
         'rol_id'   => $user['rol_id']
     ]);
 
-    // EmailService::send(
-    //     $user['email'],
-    //     'Bienvenido de nuevo',
-    //     'welcome',
-    //     [
-    //         'nombre' => $user['username'],
-    //         'app' => 'AuditoriasIps',
-    //         'url' => 'https://auditoriaips.clinicalhouse.co/'
-    //     ]
-    // );
+    EmailService::send(
+        $user['email'],
+        'Bienvenido de nuevo',
+        'welcome',
+        [
+            'nombre' => $user['username'],
+            'app' => 'AuditoriasIps',
+            'url' => 'https://auditoriaips.clinicalhouse.co/'
+        ]
+    );
+
+    Logger::request("Login exitoso | Usuario: {$user['username']}");
 
     echo json_encode([
         'success' => true,
@@ -46,7 +50,8 @@ try {
         'user'    => $user
     ]);
 
-} catch (Exception $e) {
+} catch (\Exception $e) {
+    Logger::exception($e);
     http_response_code($e->getCode() ?: 500);
     echo json_encode([
         'success' => false,

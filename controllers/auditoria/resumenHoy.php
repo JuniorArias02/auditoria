@@ -1,24 +1,30 @@
 <?php
-require_once __DIR__ . '/../../middlewares/cors.php';
-require_once __DIR__ . '/../../db/conexion.php';
-require_once __DIR__ . '/../../models/Auditorias.php';
-
+use App\Bootstrap\App;
 use App\Models\Auditoria;
+use App\Services\Logger;
 
-$fecha = $params[0] ?? null;
+try {
+    $pdo = App::getPdo();
 
-if (!$fecha) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Fecha requerida en la URL']);
-    exit;
-}
+    $fecha = $params[0] ?? null;
+    if (!$fecha) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Fecha requerida en la URL']);
+        exit;
+    }
 
-$auditoria = new Auditoria($pdo);
-$result = $auditoria->resumenHoy($fecha);
+    $auditoria = new Auditoria($pdo);
+    $result = $auditoria->resumenHoy($fecha);
 
-if ($result) {
-    echo json_encode($result);
-} else {
-    http_response_code(404);
-    echo json_encode(['error' => 'No se encontró información para la fecha indicada']);
+    if ($result) {
+        echo json_encode(['success' => true, 'data' => $result]);
+    } else {
+        http_response_code(404);
+        echo json_encode(['success' => false, 'message' => 'No se encontró información para la fecha indicada']);
+    }
+
+} catch (\Exception $e) {
+    Logger::exception($e);
+    http_response_code($e->getCode() ?: 500);
+    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }

@@ -1,24 +1,31 @@
 <?php
-require_once __DIR__ . '/../../middlewares/cors.php';
-require_once __DIR__ . '/../../db/conexion.php';
-require_once __DIR__ . '/../../models/Eps.php';
 
+use App\Bootstrap\App;
 use App\Models\Eps;
+use App\Services\Logger;
 
-$id = $params[0] ?? null;
+try {
+    $pdo = App::getPdo();
 
-if (!$id) {
-    http_response_code(400);
-    echo json_encode(['error' => 'ID requerido']);
-    exit;
-}
+    $id = $params[0] ?? null;
 
-$eps = new Eps($pdo);
-$result = $eps->obtenerPorId($id);
+    if (!$id) {
+        http_response_code(400);
+        echo json_encode(['error' => 'ID requerido']);
+        exit;
+    }
 
-if ($result) {
-    echo json_encode($result);
-} else {
-    http_response_code(404);
-    echo json_encode(['error' => 'EPS no encontrada']);
+    $eps = new Eps($pdo);
+    $result = $eps->obtenerPorId($id);
+
+    if ($result) {
+        echo json_encode($result);
+    } else {
+        http_response_code(404);
+        echo json_encode(['error' => 'EPS no encontrada']);
+    }
+} catch (\Throwable $th) {
+    Logger::exception($th);
+    http_response_code($th->getCode() ?: 500);
+    echo json_encode(['error' => $th->getMessage()]);
 }

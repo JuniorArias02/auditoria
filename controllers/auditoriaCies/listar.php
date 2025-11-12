@@ -1,14 +1,29 @@
 <?php
-require_once __DIR__ . '/../../middlewares/cors.php';
-require_once __DIR__ . '/../../db/conexion.php';
-require_once __DIR__ . '/../../models/Cie10.php';
-
+use App\Bootstrap\App;
 use App\Models\Cie10;
+use App\Middlewares\AuthMiddleware;
+use App\Services\Logger;
 
-$c10 = new Cie10($pdo);
-$lista = $c10->obtenerTodos();
+header('Content-Type: application/json');
 
-echo json_encode([
-    'success' => true,
-    'data' => $lista
-]);
+try {
+    $userData = AuthMiddleware::check();
+
+    $pdo = App::getPdo();
+
+    $c10 = new Cie10($pdo);
+    $lista = $c10->obtenerTodos();
+
+    echo json_encode([
+        'success' => true,
+        'data' => $lista
+    ]);
+
+} catch (\Exception $e) {
+    Logger::exception($e);
+    http_response_code($e->getCode() ?: 500);
+    echo json_encode([
+        'success' => false,
+        'message' => $e->getMessage()
+    ]);
+}

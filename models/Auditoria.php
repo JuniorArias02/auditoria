@@ -1,10 +1,12 @@
 <?php
 
 namespace App\Models;
-use PDO;
+use App\Database\Database;
+use \PDO;
+
 use Exception;
 
-require_once __DIR__ . '/../db/conexion.php';
+
 
 class Auditoria
 {

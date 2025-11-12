@@ -1,24 +1,38 @@
 <?php
-require_once __DIR__ . '/../../middlewares/cors.php';
-require_once __DIR__ . '/../../middlewares/auth.php';
-require_once __DIR__ . '/../../db/conexion.php';
-require_once __DIR__ . '/../../models/Auditorias.php';
-
+use App\Bootstrap\App;
+use App\Middlewares\AuthMiddleware;
+use App\Middlewares\Permission;
 use App\Models\Auditoria;
+use App\Services\Logger;
 
-$id = $params[0] ?? null;
+try {
+    $userData = AuthMiddleware::check();
+    $pdo = App::getPdo();
+    $permission = new Permission($userData);
+    $permission->require('auditoria:eliminar');
 
-if (!$id) {
-    http_response_code(400);
-    echo json_encode(['error' => 'ID requerido en la URL']);
-    exit;
-}
+    $id = $params[0] ?? null;
+    if (!$id) {
+        throw new \Exception('ID de auditoría requerido', 400);
+    }
 
-$auditoria = new Auditoria($pdo);
+    $auditoria = new Auditoria($pdo);
+    $resultado = $auditoria->eliminar($id);
 
-if ($auditoria->eliminar($id)) {
-    echo json_encode(['message' => 'Auditoría eliminada correctamente']);
-} else {
-    http_response_code(400);
-    echo json_encode(['error' => 'No se pudo eliminar la auditoría']);
+    if (!$resultado) {
+        throw new \Exception('No se pudo eliminar la auditoría', 400);
+    }
+
+    echo json_encode([
+        'success' => true,
+        'message' => 'Auditoría eliminada correctamente'
+    ]);
+
+} catch (\Exception $e) {
+    Logger::exception($e);
+    http_response_code($e->getCode() ?: 500);
+    echo json_encode([
+        'success' => false,
+        'message' => $e->getMessage()
+    ]);
 }

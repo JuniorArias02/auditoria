@@ -1,16 +1,31 @@
 <?php
-require_once __DIR__ . '/../../middlewares/cors.php';
-require_once __DIR__ . '/../../db/conexion.php';
-require_once __DIR__ . '/../../models/Auditorias.php';
-
+use App\Bootstrap\App;
 use App\Models\Auditoria;
+use App\Services\Logger;
 
-$auditoria = new Auditoria($pdo);
-$result = $auditoria->mostrarInformeAuditorias();
+header('Content-Type: application/json');
 
-if ($result) {
-	echo json_encode($result);
-} else {
-	http_response_code(404);
-	echo json_encode(['error' => 'Auditoría no encontrada']);
+try {
+    
+    $pdo = App::getPdo();
+
+    $auditoria = new Auditoria($pdo);
+    $resultado = $auditoria->mostrarInformeAuditorias();
+
+    if (!$resultado) {
+        throw new \Exception('Auditoría no encontrada', 404);
+    }
+
+    echo json_encode([
+        'success' => true,
+        'data' => $resultado
+    ]);
+
+} catch (\Exception $e) {
+    Logger::exception($e);
+    http_response_code($e->getCode() ?: 500);
+    echo json_encode([
+        'success' => false,
+        'message' => $e->getMessage()
+    ]);
 }

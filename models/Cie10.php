@@ -1,9 +1,8 @@
 <?php
 namespace App\Models;
-use PDO;
+use App\Database\Database;
+use \PDO;
 
-
-require_once __DIR__ . '/../db/conexion.php';
 
 
 class Cie10

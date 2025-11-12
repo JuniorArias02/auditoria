@@ -1,17 +1,35 @@
 <?php
-require_once __DIR__ . '/../../middlewares/cors.php';
-require_once __DIR__ . '/../../db/conexion.php';
-require_once __DIR__ . '/../../middlewares/auth.php';
-require_once __DIR__ . '/../../models/FormularioAuditoria.php';
+use App\Bootstrap\App;
 use App\Models\FormularioAuditoria;
+use App\Services\Logger;
 
-$id = $params[0] ?? null;
-$model = new FormularioAuditoria($pdo);	
+header('Content-Type: application/json');
 
 try {
+    $pdo = App::getPdo();
+    $id = $params[0] ?? null;
+
+    if (!$id) {
+        throw new \Exception('ID del formulario es requerido', 400);
+    }
+
+    $model = new FormularioAuditoria($pdo);
     $formularios = $model->obtenerFormularioCompleto($id);
-    echo json_encode($formularios);
-} catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode(['error' => $e->getMessage()]);
+
+    if (!$formularios) {
+        throw new \Exception('Formulario no encontrado', 404);
+    }
+
+    echo json_encode([
+        'success' => true,
+        'data' => $formularios
+    ]);
+
+} catch (\Exception $e) {
+    Logger::exception($e);
+    http_response_code($e->getCode() ?: 500);
+    echo json_encode([
+        'success' => false,
+        'message' => $e->getMessage()
+    ]);
 }

@@ -1,7 +1,9 @@
 <?php
 
 namespace App\Models;
-use PDO;
+use App\Database\Database;
+use \PDO;
+
 class Roles
 {
 	private $pdo;

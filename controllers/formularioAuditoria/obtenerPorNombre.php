@@ -1,24 +1,35 @@
 <?php
-require_once __DIR__ . '/../../middlewares/cors.php';
-require_once __DIR__ . '/../../db/conexion.php';
-require_once __DIR__ . '/../../models/FormularioAuditoria.php';
-
+use App\Bootstrap\App;
 use App\Models\Pacientes;
+use App\Services\Logger;
 
+header('Content-Type: application/json');
 
-$nombre = $params[0] ?? null;
-if (!$nombre) {
-    http_response_code(400);
-    echo json_encode(['success' => false, 'message' => 'Nombre es requerido']);
-    exit;
-}
+try {
+    $pdo = App::getPdo();
+    $nombre = $params[0] ?? null;
 
-$PacientesModel = new Pacientes($pdo);
-$paciente = $PacientesModel->buscarPorNombreOCedula($nombre);
+    if (!$nombre) {
+        throw new \Exception('Nombre es requerido', 400);
+    }
 
-if ($paciente) {
-    echo json_encode(['success' => true, 'data' => $paciente]);
-} else {
-    http_response_code(404);
-    echo json_encode(['success' => false, 'message' => 'paciente no encontrado']);
+    $PacientesModel = new Pacientes($pdo);
+    $paciente = $PacientesModel->buscarPorNombreOCedula($nombre);
+
+    if (!$paciente) {
+        throw new \Exception('Paciente no encontrado', 404);
+    }
+
+    echo json_encode([
+        'success' => true,
+        'data' => $paciente
+    ]);
+
+} catch (\Exception $e) {
+    Logger::exception($e);
+    http_response_code($e->getCode() ?: 500);
+    echo json_encode([
+        'success' => false,
+        'message' => $e->getMessage()
+    ]);
 }

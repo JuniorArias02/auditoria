@@ -1,18 +1,27 @@
 <?php
-require_once __DIR__ . '/../../middlewares/cors.php';
-require_once __DIR__ . '/../../middlewares/auth.php';
-require_once __DIR__ . '/../../db/conexion.php';
-require_once __DIR__ . '/../../models/Usuario.php';
-require_once __DIR__ . '/../../middlewares/permiso.php';
 
+use App\Bootstrap\App;
+use App\Middlewares\AuthMiddleware;
+use App\Middlewares\Permission;
 use App\Models\Usuario;
+use App\Services\Logger;
 
-requirePermission('usuario:listar');
+try {
+    $userData = AuthMiddleware::check();
+    $permission = new Permission($userData);
+    $permission->require('usuario:listar');
+    $pdo = App::getPdo();
 
-$usuario = new Usuario($pdo);
-$usuarios = $usuario->listar();
+    $usuario = new Usuario($pdo);
+    $usuarios = $usuario->listar();
 
-echo json_encode([
-    'success' => true,
-    'data' => $usuarios
-]);
+    echo json_encode([
+        'success' => true,
+        'data' => $usuarios
+    ]);
+} catch (\Throwable $th) {
+    Logger::exception($th);
+    http_response_code($th->getCode() ?: 500);
+    echo json_encode(['success' => false, 'message' => $th->getMessage()]);
+    exit;
+}

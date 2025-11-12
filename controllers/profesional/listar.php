@@ -1,11 +1,19 @@
 <?php
-require_once __DIR__ . '/../../middlewares/cors.php';
-require_once __DIR__ . '/../../db/conexion.php';
-require_once __DIR__ . '/../../models/Profesional.php';
 
+use App\Bootstrap\App;
 use App\Models\Profesional;
+use App\Services\Logger;
 
-$profesional = new Profesional($pdo);
-$resultado = $profesional->obtenerTodos();
+try {
+	$pdo = App::getPdo();
 
-echo json_encode(['success' => true, 'data' => $resultado]);
+	$profesional = new Profesional($pdo);
+	$resultado = $profesional->obtenerTodos();
+
+	echo json_encode(['success' => true, 'data' => $resultado]);
+} catch (\Exception $th) {
+	Logger::exception($th);
+	http_response_code($th->getCode() ?: 500);
+	echo json_encode(['success' => false, 'message' => $th->getMessage()]);
+	exit;
+}

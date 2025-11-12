@@ -1,27 +1,39 @@
 <?php
-require_once __DIR__ . '/../../middlewares/cors.php';
-require_once __DIR__ . '/../../middlewares/auth.php';
-require_once __DIR__ . '/../../db/conexion.php';
-require_once __DIR__ . '/../../models/Cie10.php';
-
+use App\Bootstrap\App;
 use App\Models\Cie10;
+use App\Middlewares\AuthMiddleware;
+use App\Services\Logger;
 
-$c10 = new Cie10($pdo);
-$id = $params[0] ?? null;
+header('Content-Type: application/json');
 
-$data = json_decode(file_get_contents("php://input"), true);
-$codigo = $data['codigo'] ?? null;
-$descripcion = $data['descripcion'] ?? null;
+try {
+    $userData = AuthMiddleware::check();
 
-if (!$id || !$codigo || !$descripcion) {
-    http_response_code(400);
-    echo json_encode(['error' => 'ID, código y descripción son requeridos.']);
-    exit;
-}
+    $pdo = App::getPdo();
 
-if ($c10->actualizar($id, $codigo, $descripcion)) {
-    echo json_encode(['success' => true, 'message' => 'Registro actualizado correctamente']);
-} else {
-    http_response_code(500);
-    echo json_encode(['error' => 'No se pudo actualizar el registro']);
+    $c10 = new Cie10($pdo);
+
+    $id = $params[0] ?? null;
+    $data = json_decode(file_get_contents("php://input"), true);
+    $codigo = $data['codigo'] ?? null;
+    $descripcion = $data['descripcion'] ?? null;
+
+    if (!$id || !$codigo || !$descripcion) {
+        http_response_code(400);
+        echo json_encode(['error' => 'ID, código y descripción son requeridos.']);
+        exit;
+    }
+
+    // Actualizar registro
+    if ($c10->actualizar($id, $codigo, $descripcion)) {
+        echo json_encode(['success' => true, 'message' => 'Registro actualizado correctamente']);
+    } else {
+        http_response_code(500);
+        echo json_encode(['error' => 'No se pudo actualizar el registro']);
+    }
+
+} catch (\Exception $e) {
+    Logger::exception($e);
+    http_response_code($e->getCode() ?: 500);
+    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }

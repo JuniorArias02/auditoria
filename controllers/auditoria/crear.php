@@ -1,30 +1,40 @@
 <?php
-require_once __DIR__ . '/../../middlewares/cors.php';
-require_once __DIR__ . '/../../middlewares/auth.php';
-require_once __DIR__ . '/../../db/conexion.php';
-require_once __DIR__ . '/../../models/Auditorias.php';
-
+use App\Bootstrap\App;
 use App\Models\Auditoria;
+use App\Middlewares\AuthMiddleware;
+use App\Services\Logger;
 
-$data = json_decode(file_get_contents('php://input'), true);
+header('Content-Type: application/json');
 
-if (!$data) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Datos inválidos o mal formateados']);
-    exit;
-}
+try {
+    $pdo = App::getPdo();
 
-$auditoria = new Auditoria($pdo);
+    $userData = AuthMiddleware::check();
 
-$id = $auditoria->crear($data);
 
-if ($id) {
+    $data = json_decode(file_get_contents('php://input'), true);
+    if (!$data) {
+        throw new \Exception('Datos inválidos o mal formateados', 400);
+    }
+
+    $auditoria = new Auditoria($pdo);
+    $id = $auditoria->crear($data);
+
+    if (!$id) {
+        throw new \Exception('No se pudo crear la auditoría', 500);
+    }
+
     echo json_encode([
         'success' => true,
         'message' => 'Auditoría creada correctamente',
         'auditoria_id' => $id
     ]);
-} else {
-    http_response_code(500);
-    echo json_encode(['error' => 'No se pudo crear la auditoría']);
+
+} catch (\Exception $e) {
+    Logger::exception($e);
+    http_response_code($e->getCode() ?: 500);
+    echo json_encode([
+        'success' => false,
+        'message' => $e->getMessage()
+    ]);
 }

@@ -1,11 +1,26 @@
 <?php
-require_once __DIR__ . '/../../middlewares/cors.php';
-require_once __DIR__ . '/../../db/conexion.php';
-require_once __DIR__ . '/../../models/Criterio.php';
-
+use App\Bootstrap\App;
 use App\Models\Criterio;
+use App\Services\Logger;
 
-$criterio = new Criterio($pdo);
-$data = $criterio->obtenerTodos();
+header('Content-Type: application/json');
 
-echo json_encode($data);
+try {
+    $pdo = App::getPdo();
+
+    $criterio = new Criterio($pdo);
+    $data = $criterio->obtenerTodos();
+
+    echo json_encode([
+        "success" => true,
+        "data" => $data
+    ]);
+
+} catch (\Exception $e) {
+    Logger::exception($e);
+    http_response_code($e->getCode() ?: 500);
+    echo json_encode([
+        "success" => false,
+        "message" => $e->getMessage()
+    ]);
+}

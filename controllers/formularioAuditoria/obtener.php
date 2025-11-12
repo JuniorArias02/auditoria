@@ -1,25 +1,31 @@
 <?php
-require_once __DIR__ . '/../../middlewares/cors.php';
-require_once __DIR__ . '/../../middlewares/auth.php';
-require_once __DIR__ . '/../../db/conexion.php';
-require_once __DIR__ . '/../../models/FormularioAuditoria.php';
 
+use App\Bootstrap\App;
 use App\Models\FormularioAuditoria;
+use App\Services\Logger;
 
-$id = $params[0] ?? null;
+try {
+    $pdo = App::getPdo();
 
-if (!$id) {
-    http_response_code(400);
-    echo json_encode(['success' => false, 'message' => 'ID del formulario es requerido']);
-    exit;
-}
+    $id = $params[0] ?? null;
 
-$formulario = new FormularioAuditoria($pdo);
-$registro = $formulario->obtenerPorId($id);
+    if (!$id) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => 'ID del formulario es requerido']);
+        exit;
+    }
 
-if ($registro) {
-    echo json_encode(['success' => true, 'data' => $registro]);
-} else {
-    http_response_code(404);
-    echo json_encode(['success' => false, 'message' => 'Paciente no encontrado']);
+    $formulario = new FormularioAuditoria($pdo);
+    $registro = $formulario->obtenerPorId($id);
+
+    if ($registro) {
+        echo json_encode(['success' => true, 'data' => $registro]);
+    } else {
+        http_response_code(404);
+        echo json_encode(['success' => false, 'message' => 'Paciente no encontrado']);
+    }
+} catch (\Throwable $th) {
+    Logger::exception($th);
+    http_response_code($th->getCode() ?: 500);
+    echo json_encode(['success' => false, 'message' => $th->getMessage()]);
 }

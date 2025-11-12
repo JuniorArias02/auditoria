@@ -1,23 +1,39 @@
 <?php
-require_once __DIR__ . '/../../middlewares/cors.php';
-require_once __DIR__ . '/../../middlewares/auth.php';
-require_once __DIR__ . '/../../db/conexion.php';
-require_once __DIR__ . '/../../models/Cie10.php';
-
+use App\Bootstrap\App;
 use App\Models\Cie10;
+use App\Middlewares\AuthMiddleware;
+use App\Services\Logger;
 
-$c10 = new Cie10($pdo);
-$id = $params[0] ?? null;
+header('Content-Type: application/json');
 
-if (!$id) {
-    http_response_code(400);
-    echo json_encode(['error' => 'ID requerido']);
-    exit;
-}
+try {
+    $userData = AuthMiddleware::check();
 
-if ($c10->eliminar($id)) {
-    echo json_encode(['success' => true, 'message' => 'Registro eliminado correctamente']);
-} else {
-    http_response_code(500);
-    echo json_encode(['error' => 'No se pudo eliminar el registro']);
+
+    $pdo = App::getPdo();
+
+    $id = $params[0] ?? null;
+
+    if (!$id) {
+        http_response_code(400);
+        echo json_encode(['error' => 'ID requerido']);
+        exit;
+    }
+
+    // Eliminar registro
+    $c10 = new Cie10($pdo);
+    if ($c10->eliminar($id)) {
+        echo json_encode(['success' => true, 'message' => 'Registro eliminado correctamente']);
+    } else {
+        http_response_code(500);
+        echo json_encode(['error' => 'No se pudo eliminar el registro']);
+    }
+
+} catch (\Exception $e) {
+    Logger::exception($e);
+    http_response_code($e->getCode() ?: 500);
+    echo json_encode([
+        'success' => false,
+        'message' => $e->getMessage()
+    ]);
 }

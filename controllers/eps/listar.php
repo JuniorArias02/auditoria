@@ -1,11 +1,26 @@
 <?php
-require_once __DIR__ . '/../../middlewares/cors.php';
-require_once __DIR__ . '/../../db/conexion.php';
-require_once __DIR__ . '/../../models/Eps.php';
-
+use App\Bootstrap\App;
 use App\Models\Eps;
+use App\Services\Logger;
 
-$eps = new Eps($pdo);
-$result = $eps->obtenerTodos();
+header('Content-Type: application/json');
 
-echo json_encode($result);
+try {
+    $pdo = App::getPdo();
+
+    $eps = new Eps($pdo);
+    $result = $eps->obtenerTodos();
+
+    echo json_encode([
+        'success' => true,
+        'data' => $result
+    ]);
+
+} catch (\Exception $e) {
+    Logger::exception($e);
+    http_response_code($e->getCode() ?: 500);
+    echo json_encode([
+        'success' => false,
+        'message' => $e->getMessage()
+    ]);
+}

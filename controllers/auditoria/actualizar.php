@@ -1,10 +1,11 @@
 <?php
-require_once __DIR__ . '/../../middlewares/cors.php';
-require_once __DIR__ . '/../../middlewares/auth.php';
-require_once __DIR__ . '/../../db/conexion.php';
-require_once __DIR__ . '/../../models/Profesional.php';
-
+use App\Bootstrap\App;
 use App\Models\Auditoria;
+use App\Middlewares\AuthMiddleware;
+
+$pdo = App::getPdo();
+
+$userData = AuthMiddleware::check();
 
 $id = $params[0] ?? null;
 

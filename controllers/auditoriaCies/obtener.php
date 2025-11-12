@@ -1,24 +1,39 @@
 <?php
-require_once __DIR__ . '/../../middlewares/cors.php';
-require_once __DIR__ . '/../../db/conexion.php';
-require_once __DIR__ . '/../../models/Cie10.php';
-
+use App\Bootstrap\App;
 use App\Models\Cie10;
+use App\Middlewares\AuthMiddleware;
+use App\Services\Logger;
 
-$c10 = new Cie10($pdo);
-$id = $params[0] ?? null;
+header('Content-Type: application/json');
 
-if (!$id) {
-    http_response_code(400);
-    echo json_encode(['error' => 'ID requerido']);
-    exit;
-}
+try {
+    $userData = AuthMiddleware::check();
 
-$registro = $c10->obtenerPorId($id);
+    $pdo = App::getPdo();
 
-if ($registro) {
-    echo json_encode(['success' => true, 'data' => $registro]);
-} else {
-    http_response_code(404);
-    echo json_encode(['error' => 'Registro no encontrado']);
+    $id = $params[0] ?? null;
+    if (!$id) {
+        http_response_code(400);
+        echo json_encode(['error' => 'ID requerido']);
+        exit;
+    }
+
+    // Consultar registro
+    $c10 = new Cie10($pdo);
+    $registro = $c10->obtenerPorId($id);
+
+    if ($registro) {
+        echo json_encode(['success' => true, 'data' => $registro]);
+    } else {
+        http_response_code(404);
+        echo json_encode(['error' => 'Registro no encontrado']);
+    }
+
+} catch (\Exception $e) {
+    Logger::exception($e);
+    http_response_code($e->getCode() ?: 500);
+    echo json_encode([
+        'success' => false,
+        'message' => $e->getMessage()
+    ]);
 }

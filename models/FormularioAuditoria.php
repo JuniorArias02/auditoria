@@ -2,11 +2,10 @@
 
 
 namespace App\Models;
-use PDO;
+
 use PDOException;
-
-
-require_once __DIR__ . '/../db/conexion.php';
+use App\Database\Database;
+use \PDO;
 
 class FormularioAuditoria
 {
