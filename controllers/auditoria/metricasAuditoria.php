@@ -1,11 +1,9 @@
 <?php
 use App\Bootstrap\App;
 use App\Models\Auditoria;
-use App\Middlewares\AuthMiddleware;
 use App\Services\Logger;
 
 try {
-    $userData = AuthMiddleware::check();
 
     $pdo = App::getPdo();
 
