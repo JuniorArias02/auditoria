@@ -15,6 +15,8 @@ use App\Bootstrap\App;
 use App\Services\Logger;
 
 App::init();
+
+
 if ($_ENV['APP_DEBUG'] ?? false) {
     ini_set('display_errors', 1);
     ini_set('display_startup_errors', 1);
