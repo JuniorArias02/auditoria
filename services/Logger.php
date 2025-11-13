@@ -4,7 +4,8 @@ namespace App\Services;
 
 class Logger
 {
-    private static string $logDir = __DIR__ . '/../logs';
+    private static string $logDir = __DIR__ . '/../../logs';
+
 
     private static function ensureLogDirExists(): void
     {

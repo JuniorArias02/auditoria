@@ -6,8 +6,6 @@ use App\Services\EmailService;
 use App\Services\Logger;
 use App\Utils\JWTService;
 
-header('Content-Type: application/json');
-
 try {
     $pdo = App::getPdo();
 
