@@ -1,10 +1,8 @@
 <?php
-use App\Bootstrap\App;
-use App\Models\Auditoria;
-use App\Middlewares\AuthMiddleware;
-use App\Services\Logger;
-
-header('Content-Type: application/json');
+use App\Bootstrap\App; //es para obtener los cors
+use App\Models\Auditoria; //es el modelo
+use App\Middlewares\AuthMiddleware; // es para la autenticacion
+use App\Services\Logger; //es para el log de errores
 
 try {
     $pdo = App::getPdo();

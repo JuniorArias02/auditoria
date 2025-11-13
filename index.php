@@ -9,13 +9,13 @@ ini_set('error_log', __DIR__ . '/logs/php_error.log');
 if (!is_dir(__DIR__ . '/logs')) {
     mkdir(__DIR__ . '/logs', 0777, true);
 }
+
 require_once __DIR__ . '/vendor/autoload.php';
 
 use App\Bootstrap\App;
 use App\Services\Logger;
 
 App::init();
-
 
 if ($_ENV['APP_DEBUG'] ?? false) {
     ini_set('display_errors', 1);
