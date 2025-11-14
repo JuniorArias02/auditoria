@@ -35,7 +35,7 @@ class App
             }
         });
 
-        // Inicializar PDO
+        // Inicializar PDO (que ya está forzado a UTC)
         self::$pdo = Database::getConnection();
     }
 

@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+
 use App\Database\Database;
 use \PDO;
 
@@ -45,17 +46,17 @@ class Profesional
     }
 
     // Crear un nuevo profesional
-    public function crear($nombre, $cargo)
+    public function crear($nombre, $cedula, $cargo)
     {
-        $stmt = $this->pdo->prepare("INSERT INTO profesionales (nombre, cargo) VALUES (?, ?)");
-        return $stmt->execute([$nombre, $cargo]);
+        $stmt = $this->pdo->prepare("INSERT INTO profesionales (nombre,cedula,cargo) VALUES (?,?,?)");
+        return $stmt->execute([$nombre, $cedula, $cargo]);
     }
 
     // Actualizar un profesional
-    public function actualizar($id, $nombre, $cargo)
+    public function actualizar($id, $nombre, $cedula, $cargo)
     {
-        $stmt = $this->pdo->prepare("UPDATE profesionales SET nombre = ?, cargo = ? WHERE id = ?");
-        return $stmt->execute([$nombre, $cargo, $id]);
+        $stmt = $this->pdo->prepare("UPDATE profesionales SET nombre = ?,cedula = ?, cargo = ? WHERE id = ?");
+        return $stmt->execute([$nombre, $cedula, $cargo, $id]);
     }
 
     // Eliminar un profesional

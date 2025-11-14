@@ -1,10 +1,12 @@
 <?php
 
 use App\Bootstrap\App;
+use App\Middlewares\AuthMiddleware;
 use App\Models\Profesional;
 use App\Services\Logger;
 
 try {
+	$userData = AuthMiddleware::check();
 	$pdo = App::getPdo();
 
 	$profesional = new Profesional($pdo);

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use App\Database\Database;
@@ -138,5 +139,17 @@ class Usuario
         return $stmt->execute(['id' => $id]);
     }
 
-   
+    public function validarUsuario($identificador)
+    {
+        $stmt = $this->pdo->prepare("
+            SELECT id, nombre_completo, email 
+            FROM usuarios 
+            WHERE (username = :identificador OR email = :identificador) 
+            AND activo = 1
+        ");
+        $stmt->execute(['identificador' => $identificador]);
+        $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $usuario ?: false;
+    }
 }

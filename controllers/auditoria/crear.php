@@ -1,14 +1,12 @@
 <?php
-use App\Bootstrap\App; //es para obtener los cors
-use App\Models\Auditoria; //es el modelo
-use App\Middlewares\AuthMiddleware; // es para la autenticacion
-use App\Services\Logger; //es para el log de errores
+use App\Bootstrap\App;
+use App\Models\Auditoria;
+use App\Middlewares\AuthMiddleware;
+use App\Services\Logger;
 
 try {
     $pdo = App::getPdo();
-
     $userData = AuthMiddleware::check();
-
 
     $data = json_decode(file_get_contents('php://input'), true);
     if (!$data) {
@@ -22,6 +20,11 @@ try {
         throw new \Exception('No se pudo crear la auditoría', 500);
     }
 
+    Logger::info(
+        "Auditoría creada exitosamente | ID: $id | Usuario: {$userData['id']}",
+        "auditoria"
+    );
+
     echo json_encode([
         'success' => true,
         'message' => 'Auditoría creada correctamente',
@@ -29,7 +32,10 @@ try {
     ]);
 
 } catch (\Exception $e) {
-    Logger::exception($e);
+
+    // AHORA con canal auditoria
+    Logger::exception($e, "auditoria");
+
     http_response_code($e->getCode() ?: 500);
     echo json_encode([
         'success' => false,

@@ -2,12 +2,15 @@
 
 use App\Bootstrap\App;
 use App\Middlewares\AuthMiddleware;
+use App\Middlewares\Permission;
 use App\Models\Profesional;
 use App\Services\Logger;
 
 try {
     $userData = AuthMiddleware::check();
     $pdo = App::getPdo();
+    $permission = new Permission($userData);
+    $permission->require('profesional:eliminar');
 
     $id = $params[0] ?? null;
 

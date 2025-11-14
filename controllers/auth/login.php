@@ -17,7 +17,7 @@ try {
     $user = $usuario->login($identificador, $password);
 
     if (!$user) {
-        Logger::request("Intento fallido de login | Identificador: $identificador");
+        Logger::request("Login fallido | Identificador: $identificador", Logger::SECURITY);
         throw new \Exception('Credenciales incorrectas', 401);
     }
 
@@ -34,12 +34,12 @@ try {
         'welcome',
         [
             'nombre' => $user['username'],
-            'app' => 'AuditoriasIps',
-            'url' => 'https://auditoriaips.clinicalhouse.co/'
+            'app'    => 'AuditoriasIps',
+            'url'    => 'https://auditoriaips.clinicalhouse.co/'
         ]
     );
 
-    Logger::request("Login exitoso | Usuario: {$user['username']}");
+    Logger::request("Login exitoso | Usuario: {$user['username']}", Logger::SECURITY);
 
     echo json_encode([
         'success' => true,
@@ -49,7 +49,9 @@ try {
     ]);
 
 } catch (\Exception $e) {
-    Logger::exception($e);
+
+    Logger::exception($e, Logger::SECURITY);
+
     http_response_code($e->getCode() ?: 500);
     echo json_encode([
         'success' => false,

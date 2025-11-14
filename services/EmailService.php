@@ -12,14 +12,10 @@ class EmailService
 {
     public static function send($to, $subject, $template, $data = [])
     {
-        $dotenv = Dotenv::createImmutable(dirname(__DIR__)); 
-
-        $dotenv->load();
-
         $mail = new PHPMailer(true);
 
         try {
-            // Configuración SMTP
+            // SMTP
             $mail->isSMTP();
             $mail->Host       = $_ENV['MAIL_HOST'];
             $mail->SMTPAuth   = true;
@@ -33,19 +29,25 @@ class EmailService
             $mail->addAddress($to);
 
             $mail->isHTML(true);
+            $mail->CharSet = "UTF-8";
             $mail->Subject = $subject;
 
-            // Renderizar plantilla
+            // Plantilla
+            $templatePath = __DIR__ . "/../emails/templates/{$template}.php";
+
+            if (!file_exists($templatePath)) {
+                throw new \Exception("Plantilla de correo '{$template}' no encontrada.");
+            }
+
             ob_start();
             extract($data);
-            include __DIR__ . "/../emails/templates/{$template}.php";
+            include $templatePath;
             $body = ob_get_clean();
 
             $mail->Body = $body;
             $mail->send();
 
             return ['success' => true, 'message' => 'Correo enviado correctamente.'];
-
         } catch (Exception $e) {
             return ['success' => false, 'error' => $mail->ErrorInfo];
         }
