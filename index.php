@@ -104,6 +104,9 @@ Router::get('api/obtenerFormularioDimenciones/(\d+)', 'controllers/formularioAud
 Router::get('api/formularioDimensiones/obtenerDimencionesPorFormulario/(\d+)', 'controllers/formularioDimensiones/obtenerDimencionesPorFormulario.php');
 Router::get('api/reportes/auditoriasCompleto', 'controllers/auditoria/obtenerReportesCompleto.php');
 
+Router::get('api/userSetting', 'controllers/userSetting/obtener.php');
+Router::get('api/userSetting/notificacion', 'controllers/userSetting/obtenerNotificacion.php');
+
 /**
  * RUTAS PUT
  */
@@ -119,6 +122,8 @@ Router::put('api/cie10/(\d+)', 'controllers/cie10/actualizar.php');
 Router::put('api/auditoria/(\d+)', 'controllers/auditoria/actualizar.php');
 Router::put('api/pacientes/(\d+)', 'controllers/pacientes/actualizar.php');
 Router::put('api/formularioAuditoria', 'controllers/formularioAuditoria/actualizarFormulario.php');
+Router::put('api/userSetting/tema', 'controllers/userSetting/cambiarTema.php');
+Router::put('api/userSetting/notificaciones', 'controllers/userSetting/actualizarNotificaciones.php');
 
 /**
  * RUTAS DELETE

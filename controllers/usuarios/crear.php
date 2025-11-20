@@ -4,6 +4,7 @@ use App\Bootstrap\App;
 use App\Middlewares\AuthMiddleware;
 use App\Middlewares\Permission;
 use App\Models\Usuario;
+use App\Models\UserSetting;
 use App\Services\Logger;
 
 
@@ -25,9 +26,12 @@ try {
     $ok = $usuario->crear($nombre, $username, $email, $password, $rol_id);
 
     if ($ok) {
+        $userSettingModel = new UserSetting($pdo);
+        $userSettings = $userSettingModel->crearInicial($ok);
+
         echo json_encode([
             'success' => true,
-            'message' => 'Usuario creado con éxito'
+            'message' => 'Usuario creado con éxito',
         ]);
     } else {
         echo json_encode([

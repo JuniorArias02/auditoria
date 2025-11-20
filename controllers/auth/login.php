@@ -16,10 +16,12 @@ try {
     $usuario = new Usuario($pdo);
     $user = $usuario->login($identificador, $password);
 
+
     if (!$user) {
         Logger::request("Login fallido | Identificador: $identificador", Logger::SECURITY);
         throw new \Exception('Credenciales incorrectas', 401);
     }
+
 
     $token = JWTService::generarToken([
         'id'       => $user['id'],
@@ -47,7 +49,6 @@ try {
         'token'   => $token,
         'user'    => $user
     ]);
-
 } catch (\Exception $e) {
 
     Logger::exception($e, Logger::SECURITY);

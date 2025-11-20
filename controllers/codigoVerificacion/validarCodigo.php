@@ -22,7 +22,7 @@ try {
         ]);
         exit;
     }
-
+ 
     
     $data = JWTService::verificarTokenUnico($token);
 
@@ -62,7 +62,7 @@ try {
         'token' => $tokenFinal
     ]);
 } catch (\Throwable $th) {
-    Logger::exception($th);
+    Logger::exception($th );
     http_response_code($th->getCode() ?: 500);
     echo json_encode([
         'success' => false,

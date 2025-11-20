@@ -65,17 +65,21 @@ class Usuario
     {
         $hash = password_hash($password, PASSWORD_DEFAULT);
         $sql = "INSERT INTO usuarios 
-                    (nombre_completo, username, email, password, rol_id, activo, created_at, updated_at)
-                VALUES (:nombre, :username, :email, :password, :rol_id, 1, NOW(), NOW())";
+                (nombre_completo, username, email, password, rol_id, activo, created_at, updated_at)
+            VALUES (:nombre, :username, :email, :password, :rol_id, 1, NOW(), NOW())";
         $stmt = $this->pdo->prepare($sql);
-        return $stmt->execute([
+        $success = $stmt->execute([
             'nombre'    => $nombre,
             'username'  => $username,
             'email'     => $email,
             'password'  => $hash,
             'rol_id'    => $rol_id
         ]);
+
+        if (!$success) return false;
+        return $this->pdo->lastInsertId();
     }
+
 
     // LISTAR TODOS LOS USUARIOS
     public function listar()
