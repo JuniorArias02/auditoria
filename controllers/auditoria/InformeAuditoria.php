@@ -3,7 +3,6 @@ use App\Bootstrap\App;
 use App\Models\Auditoria;
 use App\Services\Logger;
 
-header('Content-Type: application/json');
 
 try {
     

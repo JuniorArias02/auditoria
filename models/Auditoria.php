@@ -476,7 +476,6 @@ class Auditoria
         WHERE a.porcentaje_cumplimiento IS NOT NULL
         GROUP BY p.id, p.nombre, p.cargo
         ORDER BY promedio_cumplimiento DESC
-        LIMIT 5
     ";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute();
