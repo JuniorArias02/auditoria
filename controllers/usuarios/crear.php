@@ -7,13 +7,11 @@ use App\Models\Usuario;
 use App\Models\UserSetting;
 use App\Services\Logger;
 
-
 try {
-    $userData = AuthMiddleware::check();
+   $userData = AuthMiddleware::check();
     $permission = new Permission($userData);
     $permission->require('usuario:crear');
     $pdo = App::getPdo();
-
     $data = json_decode(file_get_contents('php://input'), true);
 
     $nombre = $data['nombre_completo'];

@@ -9,8 +9,8 @@ class Database
     {
         if (self::$pdo === null) {
             $config = require __DIR__ . '/../config.php';
-
             try {
+
                 self::$pdo = new \PDO(
                     "mysql:host={$config['host']};dbname={$config['dbname']};charset=utf8",
                     $config['user'],
@@ -18,8 +18,8 @@ class Database
                 );
 
                 self::$pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-
                 self::$pdo->exec("SET time_zone = '+00:00'");
+
             } catch (\PDOException $e) {
                 die("Error de conexión: " . $e->getMessage());
             }

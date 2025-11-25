@@ -14,7 +14,7 @@ class DimensionesRepository
 		$this->pdo = $pdo;
 	}
 
-	public function obtenerTodosLosCriterios()
+	public function obtenerTodosLosCriterios(): mixed
 	{
 		$sqlDim = "SELECT * FROM dimensiones ORDER BY orden ASC";
 		$stmtDim = $this->pdo->query($sqlDim);
@@ -33,7 +33,7 @@ class DimensionesRepository
 		return $dimensiones;
 	}
 
-	public function getAllConCriterios()
+	public function getAllConCriterios(): array
 	{
 		$sql = "
             SELECT 
