@@ -20,7 +20,6 @@ class AuditoriaCies {
             'auditorias_id' => $auditorias_id
         ]);
     }
-
     public function obtenerPorAuditoria($auditorias_id) {
         $sql = "SELECT c.id, c.codigo, c.descripcion
                 FROM auditoria_cies ac
@@ -30,7 +29,6 @@ class AuditoriaCies {
         $stmt->execute(['auditorias_id' => $auditorias_id]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-
     public function eliminarPorAuditoria($auditorias_id) {
         $sql = "DELETE FROM auditoria_cies WHERE auditorias_id = :auditorias_id";
         $stmt = $this->pdo->prepare($sql);

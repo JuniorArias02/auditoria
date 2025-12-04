@@ -92,8 +92,7 @@ Router::get('api/auditoria/listarAuditorias', 'controllers/auditoria/listarAudit
 Router::get('api/auditoria/listarAuditoriasFiltro', 'controllers/auditoria/listarAuditoriasFiltro.php');
 Router::get('api/auditoria/detalle/(\d+)', 'controllers/auditoria/detalleAuditoria.php');
 Router::get('api/auditoria/DetalleEvaluacion/(\d+)', 'controllers/auditoria/detalleAuditoriaEvaluacion.php');
-Router::get('api/auditoria/resumenMensual/(\d+)', 'controllers/auditoria/obtenerResumenAuditorias.php');
-
+Router::get('api/auditoria/resumenMensual', 'controllers/auditoria/obtenerResumenAuditorias.php');
 Router::get('api/pacientes/listar', 'controllers/pacientes/listar.php');
 Router::get('api/pacientes/(\d+)', 'controllers/pacientes/obtener.php');
 Router::get('api/pacientes/filtro/([^/]+)', 'controllers/pacientes/obtenerPorNombre.php');
