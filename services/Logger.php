@@ -16,7 +16,6 @@ class Logger
             mkdir(self::$logDir, 0777, true);
         }
     }
-
     private static function writeLog(string $level, string $message, string $channel = self::APP): void
     {
         self::ensureLogDirExists();
@@ -27,10 +26,8 @@ class Logger
         $now = date('Y-m-d H:i:s');
         $entry = "[$now][$level] $message" . PHP_EOL;
 
-        // Archivo físico
         file_put_contents($file, $entry, FILE_APPEND);
 
-        // BD
         self::saveLogToDatabase($level, $message, $channel, $now);
     }
 
