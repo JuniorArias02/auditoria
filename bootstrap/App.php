@@ -19,7 +19,9 @@ class App
         // CORS
         CorsService::handle();
 
-        // Logger y manejo de errores globales
+
+        Logger::request();
+
         set_error_handler(function ($level, $message, $file, $line) {
             Logger::error("Error [$level]: $message en $file:$line");
         });
@@ -35,7 +37,6 @@ class App
             }
         });
 
-        // Inicializar PDO (que ya está forzado a UTC)
         self::$pdo = Database::getConnection();
     }
 
