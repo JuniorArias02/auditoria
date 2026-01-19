@@ -137,15 +137,30 @@ class Auditoria
     {
         $fecha = $fecha ?? date('Y-m-d');
 
+        // Convertir la fecha local a rango UTC
+        // Inicio del día en UTC (00:00:00 local)
+        $inicioLocal = new \DateTime($fecha . ' 00:00:00');
+        $inicioUtc = clone $inicioLocal;
+        $inicioUtc->setTimezone(new \DateTimeZone('UTC'));
+
+        // Fin del día en UTC (23:59:59 local)
+        $finLocal = new \DateTime($fecha . ' 23:59:59');
+        $finUtc = clone $finLocal;
+        $finUtc->setTimezone(new \DateTimeZone('UTC'));
+
         $sql = "SELECT 
-                COUNT(*) AS auditoriasHoy,
-                AVG(porcentaje_cumplimiento) AS cumplimiento,
-                AVG(puntaje_total) AS puntajeMaximo
-            FROM auditorias
-            WHERE fecha_auditoria = :fecha";
+            COUNT(*) AS auditoriasHoy,
+            AVG(porcentaje_cumplimiento) AS cumplimiento,
+            AVG(puntaje_total) AS puntajeMaximo
+        FROM auditorias
+        WHERE fecha_auditoria >= :inicio 
+        AND fecha_auditoria <= :fin";
 
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute(['fecha' => $fecha]);
+        $stmt->execute([
+            'inicio' => $inicioUtc->format('Y-m-d H:i:s'),
+            'fin' => $finUtc->format('Y-m-d H:i:s')
+        ]);
 
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }

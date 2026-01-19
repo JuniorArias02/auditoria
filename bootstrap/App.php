@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Bootstrap;
 
 use Dotenv\Dotenv;
@@ -15,6 +16,9 @@ class App
         // Cargar .env
         $dotenv = Dotenv::createImmutable(dirname(__DIR__));
         $dotenv->load();
+
+        // Configurar zona horaria (Colombia = UTC-5)
+        date_default_timezone_set($_ENV['APP_TIMEZONE'] ?? 'America/Bogota');
 
         // CORS
         CorsService::handle();
