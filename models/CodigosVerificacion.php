@@ -20,7 +20,8 @@ class CodigosVerificacion
 	public function generarCodigo($usuarioId, $minutosValidez = 15)
 	{
 		$codigo = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
-		$expiracion = date('Y-m-d H:i:s', strtotime("+$minutosValidez minutes"));
+		// Usar gmdate() para UTC en lugar de date() que usa hora local
+		$expiracion = gmdate('Y-m-d H:i:s', strtotime("+$minutosValidez minutes"));
 		$stmt = $this->pdo->prepare("
             INSERT INTO codigos_verificacion (usuario_id, codigo, expiracion) 
             VALUES (:usuario_id, :codigo, :expiracion)
@@ -31,17 +32,18 @@ class CodigosVerificacion
 			'codigo' => $codigo,
 			'expiracion' => $expiracion
 		]);
- 
+
 		return $resultado ? $codigo : false;
 	}
 
 	public function validarCodigo($usuarioId, $codigo)
 	{
+		// Usar UTC_TIMESTAMP() en lugar de NOW() para comparar en UTC
 		$stmt = $this->pdo->prepare("
             SELECT id FROM codigos_verificacion 
             WHERE usuario_id = :usuario_id 
             AND codigo = :codigo 
-            AND expiracion > NOW() 
+            AND expiracion > UTC_TIMESTAMP() 
             AND usado = 0
         ");
 		$stmt->execute([
