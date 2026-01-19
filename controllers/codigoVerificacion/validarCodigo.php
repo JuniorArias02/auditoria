@@ -22,8 +22,8 @@ try {
         ]);
         exit;
     }
- 
-    
+
+
     $data = JWTService::verificarTokenUnico($token);
 
     if (!$data) {
@@ -62,10 +62,12 @@ try {
         'token' => $tokenFinal
     ]);
 } catch (\Throwable $th) {
-    Logger::exception($th );
-    http_response_code($th->getCode() ?: 500);
+    Logger::exception($th);
+    $httpCode = ($th->getCode() >= 400 && $th->getCode() < 600) ? $th->getCode() : 500;
+    http_response_code($httpCode);
     echo json_encode([
         'success' => false,
-        'message' => $th->getMessage()
+        'message' => $th->getMessage(),
+        'error' => $_ENV['APP_ENV'] === 'development' ? $th->getTrace() : null
     ]);
 }

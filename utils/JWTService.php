@@ -59,7 +59,7 @@ class JWTService
             'uso_unico' => true,
             'usuario_id' => $usuarioId
         ];
-
+//                                                                                                                                                          
         return JWT::encode($payload, $secret, 'HS256');
     }
 
