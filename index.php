@@ -71,6 +71,7 @@ Router::get('api/eps/(\d+)', 'controllers/eps/obtener.php');
 Router::get('api/profesional', 'controllers/profesional/listar.php');
 Router::get('api/profesional/(\d+)', 'controllers/profesional/obtener.php');
 Router::get('api/profesional/filtro/([^/]+)', 'controllers/profesional/obtenerPorNombre.php');
+Router::get('api/profesional/filtro-kubapp/([^/]+)', 'controllers/profesional/buscarProfesionalKubapp.php');
 
 Router::get('api/dimenciones', 'controllers/dimenciones/listar.php');
 Router::get('api/dimenciones/(\d+)', 'controllers/dimenciones/obtener.php');
@@ -96,6 +97,7 @@ Router::get('api/auditoria/resumenMensual', 'controllers/auditoria/obtenerResume
 Router::get('api/pacientes/listar', 'controllers/pacientes/listar.php');
 Router::get('api/pacientes/(\d+)', 'controllers/pacientes/obtener.php');
 Router::get('api/pacientes/filtro/([^/]+)', 'controllers/pacientes/obtenerPorNombre.php');
+Router::get('api/pacientes/filtro-kubapp/([^/]+)', 'controllers/pacientes/buscarPacientesKubapp.php');
 
 Router::get('api/roles', 'controllers/roles/listar.php');
 Router::get('api/formularioAuditoria', 'controllers/formularioAuditoria/listar.php');
@@ -111,6 +113,8 @@ Router::get('api/userSetting/notificacion', 'controllers/userSetting/obtenerNoti
  */
 
 Router::put('api/usuarios/(\d+)', 'controllers/usuarios/actualizar.php');
+Router::put('api/usuarios/perfil', 'controllers/usuarios/actualizarPerfil.php');
+Router::patch('api/usuarios/perfil/contrasena', 'controllers/usuarios/cambiarContrasenaPerfil.php');
 Router::put('api/servicio-auditar/(\d+)', 'controllers/servicioAuditar/actualizar.php');
 Router::put('api/sedes/(\d+)', 'controllers/sedes/actualizar.php');
 Router::put('api/eps/(\d+)', 'controllers/eps/actualizar.php');

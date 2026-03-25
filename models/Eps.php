@@ -26,6 +26,14 @@ class Eps {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    //Obtener EPS por nombre
+    public function obtenerPorNombre($nombre) {
+        $sql = "SELECT * FROM eps WHERE nombre = :nombre";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([':nombre' => $nombre]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     //Obtener EPS por ID
     public function obtenerPorId($id) {
         $sql = "SELECT * FROM eps WHERE id = :id";

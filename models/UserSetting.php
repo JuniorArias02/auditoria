@@ -124,7 +124,16 @@ class UserSetting
 
         if (!$data) return null;
 
-        return json_decode($data['notificaciones'], true);
+        if (is_string($data['notificaciones'])) {
+            $decoded = json_decode($data['notificaciones'], true);
+            // Verify if double encoded (it shouldn't be with my fix, but for safety)
+            if (is_string($decoded)) {
+                $decoded = json_decode($decoded, true);
+            }
+            return $decoded;
+        }
+
+        return $data['notificaciones'];
     }
 
 

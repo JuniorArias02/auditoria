@@ -8,7 +8,7 @@ try {
 
     $pdo = App::getPdo();
 
-    $nombre = $params[0] ?? null;
+    $nombre = isset($params[0]) ? urldecode($params[0]) : null;
     if (!$nombre) {
         http_response_code(400);
         echo json_encode(['success' => false, 'message' => 'Nombre es requerido']);
@@ -21,8 +21,7 @@ try {
     if ($profesional) {
         echo json_encode(['success' => true, 'data' => $profesional]);
     } else {
-        http_response_code(404);
-        echo json_encode(['success' => false, 'message' => 'profesional no encontrado']);
+        echo json_encode(['success' => true, 'data' => [], 'message' => 'profesional no encontrado']);
     }
 } catch (\Exception $th) {
     Logger::exception($th);
