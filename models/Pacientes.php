@@ -172,6 +172,10 @@ class Pacientes
             \App\Services\Logger::info("Búsqueda Kubapp finalizada: No se encontró contenido");
         }
 
+        if (isset($data['content']) && is_array($data['content'])) {
+            return $data['content'];
+        }
+
         return $data ?? [];
 	}
 }
